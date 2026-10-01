@@ -53,3 +53,10 @@ Unreleased entries do not announce a published release.
 - Provide a Windows runtime recipe and optional offline build cache of public locked crate archives/indexes.
 - Add Linux/macOS/Windows CI and opt-in Windows checks, plus real-image endpoint/hardening/structured-log/SIGTERM smoke verification.
 - Linux backends report Unsupported and readiness remains 503; Windows container and native operational acceptance remain separate gates.
+
+### Documentation, audit, and delivery
+
+- Replace AGENT.md with an English guide for actual modules, current invariants, validation commands and functional-commit conventions.
+- Trace F1-F9, all 44 implementation steps and 12 acceptance criteria, original-proposal corrections and deferred roadmap items in the completion audit.
+- Retain measured 800-record ABBA handler evidence, including higher one-time publication cost and added query-buffer memory; this does not prove network throughput or native collector speed.
+- Verify 39 host tests and host/Windows-target Clippy, documentation, licenses/bans/advisories and Linux Docker behavior; live Windows collection/SCM/jobs/MSVC/container/resource targets and remote CI remain pending.
