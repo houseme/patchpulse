@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Build the executable on Windows first and copy it into artifacts/.
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+LABEL org.opencontainers.image.title="PatchPulse" org.opencontainers.image.licenses="Apache-2.0"
+WORKDIR C:/PatchPulse
+COPY artifacts/patchpulse.exe ./patchpulse.exe
+COPY config/patchpulse.toml ./patchpulse.toml
+COPY LICENSE THIRD_PARTY_NOTICES.md ./
+EXPOSE 9100
+USER ContainerUser
+HEALTHCHECK --interval=30s --timeout=6s --retries=3 CMD ["C:\\PatchPulse\\patchpulse.exe", "--config", "C:\\PatchPulse\\patchpulse.toml", "--healthcheck"]
+ENTRYPOINT ["C:\\PatchPulse\\patchpulse.exe"]
+CMD ["--foreground", "--config", "C:\\PatchPulse\\patchpulse.toml", "--bind", "0.0.0.0:9100"]
