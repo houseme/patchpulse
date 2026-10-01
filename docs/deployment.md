@@ -44,7 +44,7 @@ docker compose up -d --build
 
 The multi-stage Linux image uses Rust 1.98.1 and a scratch runtime containing only the required Debian trixie dynamic libraries, runs as numeric user 65532, includes project/dependency/Rust and system-library license notices, and probes liveness using the binary. The runtime contains no shell or curl.
 
-For restricted networks, `python3 scripts/prepare-docker-cache.py` prepares only the public locked crate archives and indexes. Build with `docker build --build-context cargo_cache=./target/docker-cargo-cache --build-arg CARGO_NET_OFFLINE=true -t patchpulse:0.1.0 .`. The ordinary build command remains online by default. The Linux image is useful for API integration and failure-mode verification; it does not expose a Windows host's patches and correctly returns ready=503.
+For restricted networks, `cargo xtask prepare-docker-cache` prepares only the public locked crate archives and indexes. Build with `docker build --build-context cargo_cache=./target/docker-cargo-cache --build-arg CARGO_NET_OFFLINE=true -t patchpulse:0.1.0 .`. Verify the built image with `cargo xtask smoke-docker --image patchpulse:0.1.0`. See [rust-tooling.md](rust-tooling.md) for prerequisites and cache behavior. The ordinary build command remains online by default. The Linux image is useful for API integration and failure-mode verification; it does not expose a Windows host's patches and correctly returns ready=503.
 
 To change ports, mount a matching configuration at `/etc/patchpulse/patchpulse.toml` so the health probe and server use the same port. The default CMD binds all container interfaces, while the example host port mapping binds only host loopback. Keep logs on stdout for read-only containers, or mount a writable log destination.
 

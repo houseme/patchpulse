@@ -69,8 +69,8 @@ A step can have implemented code and still require platform acceptance. Step num
 | 08.2 | Configured; remote execution pending | Linux/macOS/Windows workflow and opt-in live Windows collector tests. No remote CI success claimed. |
 | 08.3 | Verified Linux ARM64 | Actual Docker build: non-root scratch runtime, notices, built-in probe, explicit bind. |
 | 08.4 | Recipe provided; build/runtime pending | Dockerfile.windows requires Windows daemon and staged MSVC executable; no host-inventory guarantee. |
-| 08.5 | Verified Linux ARM64 | smoke-docker.py validates seven endpoints, expected 503 readiness, hardening and SIGTERM. |
-| 08.6 | Verified | dependency-policy.py inventory and upstream/Rust/system-library notices. |
+| 08.5 | Verified Linux ARM64 | cargo xtask smoke-docker validates seven endpoints, expected 503 readiness, hardening and SIGTERM; current migration evidence is in rust-tooling.md. |
+| 08.6 | Verified | cargo xtask dependency-policy inventory and upstream/Rust/system-library notices; normalized output matches the previous generator. |
 | 08.7 | Verified | requirements-audit.md, review-refactor.md and validation.md distinguish code, host checks and live gates. |
 
 ## Acceptance criteria review
@@ -133,9 +133,9 @@ A step can have implemented code and still require platform acceptance. Step num
 
 The audit is based on current source, host regression checks, Windows-target compilation and actual local Linux Docker behavior. Existing advisory provenance remains the verified snapshot recorded in validation.md; offline checks do not establish current online database freshness. Each rewritten functional commit receives a cumulative Changelog entry and an archived-tree build check. The old commit remains recoverable through houseme/backup-65866b7. Local rewriting does not rewrite origin/main.
 
-Current host regression result: 39 tests pass (21 unit/process, 5 API, 2 configuration, 8 snapshot pipeline, 2 collector contracts, 1 isolated logging contract). Strict host and Windows-target Clippy, rustdoc and dependency notices pass. This extends the historical 33-test review record.
+Current host regression result: 50 tests pass: 39 service tests (21 unit/process, 5 API, 2 configuration, 8 snapshot pipeline, 2 collector contracts, 1 isolated logging contract) and 11 Rust development-tool tests. Strict host and Windows-target Clippy, rustdoc and dependency notices pass. This extends the historical 33-test review record. See rust-tooling.md for migration checks and preserved historical command evidence.
 
-Rebuilt Linux image patchpulse:0.1.0 (arm64) passed structured-log, endpoint/hardening/healthcheck and SIGTERM verification. Image ID: `sha256:2ccc511915ca7c989c358125c0f284beb54fa1a52ee3d2ee48f28e4e23940834`.
+Rebuilt Linux image patchpulse:0.1.0 (arm64) passed Rust structured-log, endpoint/hardening/healthcheck and SIGTERM verification. Image ID: `sha256:4d6d7e723021c1afc22d7909b02f508fa27c042df381937de114d0aebf8bc9d8`.
 
 ## Rewritten functional history
 
@@ -150,4 +150,4 @@ The old aggregate commit is recoverable on `houseme/backup-65866b7`. The new loc
 | 5 | `99a9f6c407f2` | feat(api): expose cached patch queries and stable HTTP contracts |
 | 6 | `a59cdf994c3d` | feat(service): add foreground and Windows SCM lifecycle |
 | 7 | `c71f9fab8f59` | ci: package hardened Docker images and validation workflows |
-| 8 | Current documentation commit | English agent guide, comprehensive requirement audit and final cumulative Changelog |
+| 8 | `773a0d902722` | English agent guide, comprehensive requirement audit and cumulative Changelog |

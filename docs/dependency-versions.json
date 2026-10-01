@@ -106,6 +106,13 @@
       "stable": "0.1.5"
     }
   ],
+  "tooling_changes": {
+    "checked_on": "2026-10-02",
+    "hyper": {"version": "1.11.1", "source": "https://docs.rs/hyper/latest/hyper/", "scope": "development HTTP/1 client"},
+    "hyper-util": {"version": "0.1.21", "source": "https://docs.rs/hyper-util/latest/hyper_util/", "scope": "development Tokio HTTP adapter"},
+    "http-body-util": {"version": "0.1.5", "source": "https://docs.rs/http-body-util/latest/http_body_util/", "scope": "development bounded response body"},
+    "note": "Versions verified in the upstream documentation latest pages; the original registry_results remain a historical 2026-10-01 snapshot. Hyper client adds the compatible want/try-lock transitive packages only to development builds."
+  },
   "review_changes": {
     "bytes": "Promoted the existing bytes 1.12.1 package to a direct dependency for prepared JSON buffers; version verified in official docs.rs latest documentation.",
     "serde": "Enabled rc for immutable shared lists.",

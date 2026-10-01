@@ -27,6 +27,9 @@ windows = { version = "0.62.2", features = ["Win32_Foundation", "Win32_Security"
 windows-service = "0.8.1"
 
 [dev-dependencies]
+http-body-util = "0.1.5"
+hyper = { version = "1.11.1", features = ["client", "http1"] }
+hyper-util = { version = "0.1.21", features = ["tokio"] }
 tower = { version = "0.5.3", features = ["util"] }
 
 [lints.rust]

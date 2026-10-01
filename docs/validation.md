@@ -1,6 +1,6 @@
 > Current task-by-task status is in [requirements-audit.md](requirements-audit.md); unresolved Windows acceptance gates remain explicit.
 
-> Superseded for the current branch by the [review and refactor record](review-refactor.md). Current host tests: 39; current Docker verification is in docker-verification.json. The sections below preserve the original implementation validation.
+> Superseded for the current branch by the [review and refactor record](review-refactor.md) and [Rust tooling migration](rust-tooling.md). The sections below preserve the original implementation validation, including commands from the retired Python tools. Current commands use cargo xtask; historical source hashes remain historical evidence.
 
 # Validation Record
 

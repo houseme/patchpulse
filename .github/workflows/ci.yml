@@ -23,7 +23,7 @@ jobs:
         run: rustup toolchain install 1.98.1 --profile minimal --component clippy --component rustfmt
       - run: cargo fmt --all --check
       - run: cargo clippy --all-targets --all-features --locked -- -D warnings
-      - run: cargo test --all-features --locked
+      - run: cargo test --all-targets --all-features --locked
       - run: cargo doc --no-deps --locked
       - name: Run opt-in live Windows collectors
         if: runner.os == 'Windows' && github.event_name == 'workflow_dispatch' && inputs.live_windows
@@ -47,11 +47,12 @@ jobs:
       - run: cargo install cargo-audit --locked
       - run: cargo deny check
       - run: cargo audit
-      - run: python3 scripts/dependency-policy.py
+      - run: cargo xtask dependency-policy
   docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: rustup toolchain install 1.98.1 --profile minimal
       - run: docker build -t patchpulse:ci .
       - name: Verify unsupported platform remains observable
-        run: python3 scripts/smoke-docker.py --image patchpulse:ci
+        run: cargo xtask smoke-docker --image patchpulse:ci

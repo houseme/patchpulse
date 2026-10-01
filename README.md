@@ -22,15 +22,16 @@ Endpoints: `/health`, `/ready`, `/version`, `/patches`, `/patches/pending`, `/pa
 - [Windows service and Docker deployment](docs/deployment.md)
 - [Review findings and performance refactor](docs/review-refactor.md)
 - [Validation evidence and remaining release gates](docs/validation.md)
+- [Rust development tools](docs/rust-tooling.md)
 - [Dependency license inventory](docs/dependency-licenses.md) and [third-party notices](THIRD_PARTY_NOTICES.md)
 
 ```sh
 cargo fmt --all --check
 cargo clippy --all-targets --all-features --locked -- -D warnings
-cargo test --all-features --locked
+cargo test --all-targets --all-features --locked
 cargo deny check
 cargo audit
-python3 scripts/dependency-policy.py
+cargo xtask dependency-policy
 ```
 
 PatchPulse itself is licensed only under [Apache-2.0](LICENSE). Dependencies retain their upstream licenses and notices; jiff is used under MIT.
