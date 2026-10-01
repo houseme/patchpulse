@@ -11,3 +11,9 @@ Unreleased entries do not announce a published release.
 - Use jiff calendar dates and ban chrono/time throughout the resolved dependency graph.
 - Add strict TOML defaults, configuration-relative paths, collector switches, bind validation and mutually exclusive CLI actions.
 - Add KB and stable update identities, source provenance, category union, severity risk ordering, coherent installation dates and stale/readiness rules.
+
+### Observability
+
+- Add JSON/pretty tracing with jiff timestamps and optional append-only file output.
+- Export collector histograms/counters and inventory/freshness/reboot gauges with Prometheus scrape and alert examples.
+- Count HTTP route/status responses with bounded atomics and format coherent collector samples outside the registry lock.
