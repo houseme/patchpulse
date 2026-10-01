@@ -32,3 +32,10 @@ Unreleased entries do not announce a published release.
 - Retain failed-source data/timestamps, apply healthy or empty batches, and reconcile installed/pending duplicates.
 - Assemble immutable snapshots, encoded JSON and row boundaries in the background; publish one coherent view without blocking readers on assembly.
 - Reuse prior inventory/query buffers on failure-only cycles; expose accurate readiness, stale/error and reboot state.
+
+### HTTP queries and performance
+
+- Add GET/HEAD health, readiness, version, installed/pending list, summary and optional metrics endpoints.
+- Validate status and inclusive RFC3339 since filters, reject bad/unknown/duplicate fields, and return structured 400/404/405 errors with configured 408 timeout behavior.
+- Share complete JSON buffers and copy only selected encoded rows for filters; prepare summary indexing once per publication and keep handlers read-only.
+- Add real-router release benchmarking and contract regressions for schema, Unicode escaping, cached filtering and absence of handler-triggered collection.
