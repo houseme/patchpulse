@@ -1,5 +1,6 @@
 //! Read-only Windows patch health service components.
 
+pub mod api;
 pub mod cache;
 pub mod collector;
 pub mod config;
