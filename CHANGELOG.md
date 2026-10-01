@@ -25,3 +25,10 @@ Unreleased entries do not announce a published release.
 - Run backends concurrently with deadlines, per-backend single-flight, cooperative cancellation, and actual worker-completion timestamps.
 - Bound process output and execution/drain time; contain assigned helpers in private Windows jobs. Decode borrowed envelopes and strict typed rows.
 - Provide explicit non-Windows Unsupported outcomes and opt-in live Windows integration tests.
+
+### Snapshots and scheduling
+
+- Collect immediately once, then on a configurable skip-on-missed-tick interval.
+- Retain failed-source data/timestamps, apply healthy or empty batches, and reconcile installed/pending duplicates.
+- Assemble immutable snapshots, encoded JSON and row boundaries in the background; publish one coherent view without blocking readers on assembly.
+- Reuse prior inventory/query buffers on failure-only cycles; expose accurate readiness, stale/error and reboot state.
