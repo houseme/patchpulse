@@ -39,3 +39,10 @@ Unreleased entries do not announce a published release.
 - Validate status and inclusive RFC3339 since filters, reject bad/unknown/duplicate fields, and return structured 400/404/405 errors with configured 408 timeout behavior.
 - Share complete JSON buffers and copy only selected encoded rows for filters; prepare summary indexing once per publication and keep handlers read-only.
 - Add real-router release benchmarking and contract regressions for schema, Unicode escaping, cached filtering and absence of handler-triggered collection.
+
+### Configuration and service lifecycle
+
+- Add foreground/configuration/liveness CLI dispatch and native SCM entry/control/status handling.
+- Share a bounded two-worker/eight-blocking-worker runtime, propagate signal errors, request cancellation once, and cap HTTP/runtime shutdown.
+- Use a current-thread runtime for liveness probes; exercise JSON/pretty file logging with isolated foreground processes.
+- Add administrator installation/uninstallation with absolute quoted --service paths, delayed startup, recovery configuration and preserved files/logs.
