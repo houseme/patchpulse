@@ -1,0 +1,10 @@
+services:
+  patchpulse:
+    image: patchpulse:0.1.0
+    build: .
+    ports:
+      - "127.0.0.1:9100:9100"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped

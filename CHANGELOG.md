@@ -46,3 +46,10 @@ Unreleased entries do not announce a published release.
 - Share a bounded two-worker/eight-blocking-worker runtime, propagate signal errors, request cancellation once, and cap HTTP/runtime shutdown.
 - Use a current-thread runtime for liveness probes; exercise JSON/pretty file logging with isolated foreground processes.
 - Add administrator installation/uninstallation with absolute quoted --service paths, delayed startup, recovery configuration and preserved files/logs.
+
+### Packaging and continuous verification
+
+- Add a non-root Linux image with required runtime libraries and project/dependency/Rust/system notices, built-in health checks and hardened Compose configuration.
+- Provide a Windows runtime recipe and optional offline build cache of public locked crate archives/indexes.
+- Add Linux/macOS/Windows CI and opt-in Windows checks, plus real-image endpoint/hardening/structured-log/SIGTERM smoke verification.
+- Linux backends report Unsupported and readiness remains 503; Windows container and native operational acceptance remain separate gates.
