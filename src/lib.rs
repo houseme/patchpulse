@@ -1,4 +1,4 @@
-//! Read-only Windows patch health service components.
+//! Read-only patch collection, reconciliation, and health endpoints.
 
 pub mod api;
 pub mod app;
