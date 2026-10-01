@@ -1,0 +1,21 @@
+{
+  "image": "patchpulse:0.1.0",
+  "image_id": "sha256:ff61b9d14ba75e0c6d7b65c2901f063b524f07cb683d9a92b5990a2523456bff",
+  "architecture": "arm64",
+  "size_bytes": 3522838,
+  "non_root": true,
+  "read_only": true,
+  "healthcheck": "passed",
+  "sigterm_exit_code": 0,
+  "endpoints": {
+    "/health": 200,
+    "/ready": 503,
+    "/version": 200,
+    "/patches": 200,
+    "/patches/pending": 200,
+    "/patches/summary": 200,
+    "/metrics": 200,
+    "/patches?since=invalid": 400,
+    "/missing": 404
+  }
+}

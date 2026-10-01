@@ -1,0 +1,114 @@
+{
+  "checked_on": "2026-10-01",
+  "source": "https://crates.io/api/v1/crates/{name}",
+  "policy": "Latest non-yanked direct versions; RC/beta allowed when newer. Transitive dependencies resolve to newest compatible releases under upstream constraints.",
+  "registry_results": [
+    {
+      "name": "tokio",
+      "latest": "1.53.1",
+      "license": "MIT",
+      "stable": "1.53.1"
+    },
+    {
+      "name": "axum",
+      "latest": "0.8.9",
+      "license": "MIT",
+      "stable": "0.8.9"
+    },
+    {
+      "name": "serde",
+      "latest": "1.0.229",
+      "license": "MIT OR Apache-2.0",
+      "stable": "1.0.229"
+    },
+    {
+      "name": "serde_json",
+      "latest": "1.0.151",
+      "license": "MIT OR Apache-2.0",
+      "stable": "1.0.151"
+    },
+    {
+      "name": "jiff",
+      "latest": "0.2.37",
+      "license": "Unlicense OR MIT",
+      "stable": "0.2.37"
+    },
+    {
+      "name": "toml",
+      "latest": "1.1.6+spec-1.1.0",
+      "license": "MIT OR Apache-2.0",
+      "stable": "1.1.6+spec-1.1.0"
+    },
+    {
+      "name": "clap",
+      "latest": "4.6.7",
+      "license": "MIT OR Apache-2.0",
+      "stable": "4.6.7"
+    },
+    {
+      "name": "tracing",
+      "latest": "0.1.44",
+      "license": "MIT",
+      "stable": "0.1.44"
+    },
+    {
+      "name": "tracing-subscriber",
+      "latest": "0.3.23",
+      "license": "MIT",
+      "stable": "0.3.23"
+    },
+    {
+      "name": "thiserror",
+      "latest": "2.0.21",
+      "license": "MIT OR Apache-2.0",
+      "stable": "2.0.21"
+    },
+    {
+      "name": "anyhow",
+      "latest": "1.0.104",
+      "license": "MIT OR Apache-2.0",
+      "stable": "1.0.104"
+    },
+    {
+      "name": "windows",
+      "latest": "0.62.2",
+      "license": "MIT OR Apache-2.0",
+      "stable": "0.62.2"
+    },
+    {
+      "name": "windows-service",
+      "latest": "0.8.1",
+      "license": "MIT OR Apache-2.0",
+      "stable": "0.8.1"
+    },
+    {
+      "name": "wmi",
+      "latest": "0.18.4",
+      "license": "MIT OR Apache-2.0",
+      "stable": "0.18.4"
+    },
+    {
+      "name": "tower",
+      "latest": "0.5.3",
+      "license": "MIT",
+      "stable": "0.5.3"
+    },
+    {
+      "name": "tower-http",
+      "latest": "0.7.1",
+      "license": "MIT",
+      "stable": "0.7.1"
+    },
+    {
+      "name": "http-body-util",
+      "latest": "0.1.5",
+      "license": "MIT",
+      "stable": "0.1.5"
+    }
+  ],
+  "review_changes": {
+    "bytes": "Promoted the existing bytes 1.12.1 package to a direct dependency for prepared JSON buffers; version verified in official docs.rs latest documentation.",
+    "serde": "Enabled rc for immutable shared lists.",
+    "serde_json": "Enabled raw_value for borrowed envelope inspection."
+  }
+}
