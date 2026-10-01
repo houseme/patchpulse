@@ -17,3 +17,11 @@ Unreleased entries do not announce a published release.
 - Add JSON/pretty tracing with jiff timestamps and optional append-only file output.
 - Export collector histograms/counters and inventory/freshness/reboot gauges with Prometheus scrape and alert examples.
 - Count HTTP route/status responses with bounded atomics and format coherent collector samples outside the registry lock.
+
+### Windows collection and backend execution
+
+- Add native WMI installed, WUA installed/pending and optional embedded PowerShell installed/pending collection; preserve non-KB identities and actual query errors.
+- Use official COM interfaces and read-only cached-catalog searches without downloading, installing, hiding or approving patches.
+- Run backends concurrently with deadlines, per-backend single-flight, cooperative cancellation, and actual worker-completion timestamps.
+- Bound process output and execution/drain time; contain assigned helpers in private Windows jobs. Decode borrowed envelopes and strict typed rows.
+- Provide explicit non-Windows Unsupported outcomes and opt-in live Windows integration tests.
