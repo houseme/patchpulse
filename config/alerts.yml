@@ -1,0 +1,27 @@
+groups:
+  - name: patchpulse
+    rules:
+      - alert: PatchSnapshotStale
+        expr: patchpulse_stale == 1
+        for: 30m
+        labels: {severity: warning}
+        annotations:
+          summary: "Patch snapshot is incomplete, degraded, or stale"
+      - alert: PatchCollectorFailing
+        expr: increase(patchpulse_collect_failure_total[1h]) > 0
+        for: 15m
+        labels: {severity: warning}
+        annotations:
+          summary: "Patch collector has failed within the last hour"
+      - alert: HighPendingPatchCount
+        expr: patchpulse_pending_patches > 20
+        for: 2h
+        labels: {severity: info}
+        annotations:
+          summary: "More than twenty patches are pending"
+      - alert: PatchServiceDown
+        expr: up{job="patchpulse"} == 0
+        for: 5m
+        labels: {severity: critical}
+        annotations:
+          summary: "PatchPulse is unavailable"
