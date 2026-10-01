@@ -54,6 +54,14 @@ Unreleased entries do not announce a published release.
 - Add Linux/macOS/Windows CI and opt-in Windows checks, plus real-image endpoint/hardening/structured-log/SIGTERM smoke verification.
 - Linux backends report Unsupported and readiness remains 503; Windows container and native operational acceptance remain separate gates.
 
+### Rust development tooling
+
+- Replace all three Python helpers with cargo xtask commands for dependency policy/notices, public offline Docker cache preparation and real-image smoke verification.
+- Preserve deterministic upstream license text and enforce Apache-2.0 project licensing and chrono/time bans across all resolved targets.
+- Stage cache updates before replacing the previous cache; exclude global configuration and credentials. Bound loopback HTTP probes and clean up temporary hardened containers.
+- Keep tooling and HTTP client dependencies in development targets; update CI to exercise tool tests with --all-targets and run verification without Python.
+- Verify 50 host tests, strict host/Windows-target Clippy, license-output parity and the rebuilt Linux ARM64 image using the Rust commands.
+
 ### Documentation, audit, and delivery
 
 - Replace AGENT.md with an English guide for actual modules, current invariants, validation commands and functional-commit conventions.

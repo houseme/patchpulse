@@ -23,7 +23,11 @@ See [validation.md](../validation.md) for executed checks and platform limitatio
 
 ## Implementation record
 
-`Dockerfile`, `Dockerfile.windows`, `compose.yaml`, `.github/workflows/ci.yml`, and dependency/Docker verification scripts. The Linux image is built locally and smoke-tested. Windows image execution and remote CI are not claimed as completed.
+`Dockerfile`, `Dockerfile.windows`, `compose.yaml`, `.github/workflows/ci.yml`, and `examples/xtask/` Rust dependency/cache/Docker commands. The Linux image is built locally and smoke-tested. Windows image execution and remote CI are not claimed as completed.
+
+Run `cargo xtask dependency-policy`, `cargo xtask prepare-docker-cache`, and
+`cargo xtask smoke-docker`. Run tests with --all-targets to include tool regressions.
+See [rust-tooling.md](../rust-tooling.md) for the implementation and command guide.
 
 ## Comprehensive audit
 

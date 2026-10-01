@@ -5,7 +5,7 @@ This inventory includes build, test, and Windows-only packages in the resolved g
 Prefer Apache-2.0 where offered; otherwise retain MIT and required BSD-3-Clause/Unicode-3.0 notices.
 jiff is used under MIT. This does not relicense jiff or any other dependency.
 
-Regenerate with `python3 scripts/dependency-policy.py --write` after dependency changes.
+Regenerate with `cargo xtask dependency-policy --write` after dependency changes.
 
 | Crate | Version | Upstream license expression |
 | --- | --- | --- |
@@ -112,9 +112,11 @@ Regenerate with `python3 scripts/dependency-policy.py --write` after dependency 
 | tracing-log | 0.2.0 | MIT |
 | tracing-serde | 0.2.0 | MIT |
 | tracing-subscriber | 0.3.23 | MIT |
+| try-lock | 0.2.5 | MIT |
 | unicode-ident | 1.0.26 | (MIT OR Apache-2.0) AND Unicode-3.0 |
 | utf8parse | 0.2.2 | Apache-2.0 OR MIT |
 | valuable | 0.1.1 | MIT |
+| want | 0.3.1 | MIT |
 | wasi | 0.11.1+wasi-snapshot-preview1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | widestring | 1.2.1 | MIT OR Apache-2.0 |
 | windows | 0.62.2 | MIT OR Apache-2.0 |

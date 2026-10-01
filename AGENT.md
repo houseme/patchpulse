@@ -45,6 +45,7 @@ platform APIs or HTTP/runtime dependencies.
 | src/api/mod.rs | Read-only handlers, cached JSON, filters and contracts |
 | src/observability/mod.rs | Tracing, bounded HTTP counters and Prometheus formatting |
 | src/service.rs | Windows SCM dispatch and service control/status lifecycle |
+| examples/xtask/ | Rust development commands for dependency policy, offline cache and Docker verification |
 
 Only scheduler::tick_once calls SnapshotStore::publish. A writer mutex protects
 staged backend data while a watch channel publishes one coherent view. Prepare
@@ -131,12 +132,12 @@ Required validation commands:
 ```sh
 cargo fmt --all --check
 cargo clippy --all-targets --all-features --locked -- -D warnings
-cargo test --all-features --locked
+cargo test --all-targets --all-features --locked
 cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-gnu -- -D warnings
 cargo doc --no-deps --locked
 cargo deny check
 cargo audit
-python3 scripts/dependency-policy.py
+cargo xtask dependency-policy
 ```
 
 For restricted networks, cargo-deny can use its offline cache and cargo-audit can
@@ -147,6 +148,9 @@ upstream macro constraints and should not be rewritten without evidence.
 Add focused tests for changed domain rules and HTTP contracts. Collector changes
 must retain partial-failure, empty-success, timeout/single-flight, and cancellation
 behavior. Do not count zero tests or cross-compilation as live Windows validation.
+Development tasks use the `cargo xtask` alias and stay outside the production
+binary/image. See docs/rust-tooling.md for cache and Docker smoke commands. Include
+example tests with --all-targets; no Python installation is required by these tasks.
 Run live collector tests on a real Windows host:
 
 ```sh
