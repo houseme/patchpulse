@@ -5,6 +5,11 @@ Unreleased entries do not announce a published release.
 
 ## [Unreleased]
 
+### Completion review: runtime and HTTP contracts
+
+- Add read-only startup token elevation and enabled-administrator diagnostics without disabling HTTP for restricted accounts.
+- Return structured JSON 408 errors, cancel timed-out handlers and count timeout responses; exercise all-route HEAD and duplicate-query contracts.
+
 ### Foundation, configuration, and patch model
 
 - Add the edition-2024 Rust library, pinned toolchain and dependency lockfile; license PatchPulse under Apache-2.0 and retain upstream notices.

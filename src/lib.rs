@@ -7,6 +7,7 @@ pub mod collector;
 pub mod config;
 pub mod domain;
 pub mod observability;
+pub mod preflight;
 pub mod scheduler;
 #[cfg(windows)]
 pub mod service;

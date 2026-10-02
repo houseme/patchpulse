@@ -45,6 +45,7 @@ platform APIs or HTTP/runtime dependencies.
 | src/api/mod.rs | Read-only handlers, cached JSON, filters and contracts |
 | src/observability/mod.rs | Tracing, bounded HTTP counters and Prometheus formatting |
 | src/service.rs | Windows SCM dispatch and service control/status lifecycle |
+| src/preflight.rs | Read-only token elevation and enabled-administrator startup diagnostics |
 | examples/xtask/ | Rust development commands for dependency policy, offline cache and Docker verification |
 
 Only scheduler::tick_once calls SnapshotStore::publish. A writer mutex protects
@@ -184,4 +185,7 @@ docs/architecture.md, docs/api.md, docs/deployment.md, docs/review-refactor.md,
 and docs/validation.md. The historical PatchPulse Combat Solutions.md proposal
 contains obsolete dependency, date-library, licensing, coverage, and foreground
 service-registration examples; its F1-F9 requirements remain traceable in the audit.
-CSV export, aggregation, OpenTelemetry, and baseline comparison are roadmap items.
+The user approved CSV export, agent/hub aggregation, OpenTelemetry trace export
+and baseline comparison for the current delivery. Tasks 09-12 govern these
+extensions. Preserve read-only HTTP, per-host inventory identity and explicit
+freshness/unknown compliance. Existing platform acceptance gates still apply.

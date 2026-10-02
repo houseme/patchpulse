@@ -9,6 +9,8 @@ Requirements: F6. Dependencies: 01, 04, 05.
 3. Provide administrator-only install/uninstall scripts with absolute quoted paths, delayed automatic startup, and restart policy.
 4. Use --service in SCM registration. Do not register a foreground binary as a Windows service.
 5. Document LocalSystem permissions, firewall access, loopback defaults, WSUS coexistence, and native-host deployment.
+6. Log read-only startup token/elevation diagnostics in foreground and SCM modes;
+   preserve HTTP availability and report actual collector access failures.
 
 ## Acceptance criteria
 

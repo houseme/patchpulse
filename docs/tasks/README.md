@@ -2,7 +2,9 @@
 
 This plan refines the original combat-solutions document. The original is historical input; these English task specifications and architecture decisions govern the implementation.
 
-Scope: all F1-F9 requirements in the source proposal. Multi-machine aggregation, OpenTelemetry export, CSV export, and compliance baselines remain explicitly versioned future work rather than v0.1 requirements.
+Scope: all F1-F9 requirements plus the user-approved v0.2-v0.5 extensions: CSV
+export, agent/hub aggregation, OpenTelemetry trace export and compliance baselines.
+The original v0.1 boundary remains historical; Tasks 09-12 define current delivery.
 
 Project constraints: Apache-2.0 only for PatchPulse; English code comments; current registry releases, including acceptable RC/beta releases; jiff for dates; no chrono or time crates. The user confirmed that dependencies retain upstream licenses and notices; jiff is used under MIT.
 
@@ -16,6 +18,10 @@ Project constraints: Apache-2.0 only for PatchPulse; English code comments; curr
 | 06 | [Structured Logging, Prometheus, and Alerts](06-observability.md) | 03, 04, 05 | Implemented; local gates pass |
 | 07 | [Windows Service Lifecycle and Deployment](07-service.md) | 01, 04, 05 | Implemented; live Windows gate pending |
 | 08 | [CI, Dependency Audit, and Docker Delivery](08-delivery.md) | 01-07 | Implemented; Linux image verified; remote CI pending |
+| 09 | [CSV Inventory Export](09-csv-export.md) | 02, 04, 05 | Approved; implementation in progress |
+| 10 | [Agent and Hub Aggregation](10-agent-hub.md) | 03-06 | Approved; implementation in progress |
+| 11 | [OpenTelemetry Trace Export](11-opentelemetry.md) | 03, 05, 06, 10 | Approved; implementation in progress |
+| 12 | [Patch Baseline Comparison](12-baseline.md) | 02, 04, 05, 10 | Approved; implementation in progress |
 
 ## Completion audit
 

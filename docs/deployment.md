@@ -31,6 +31,12 @@ Start-Service PatchPulse
 
 The installer validates configuration, registers `--service`, sets delayed automatic startup and restart recovery, and starts the service. It refuses to replace an existing service. Uninstallation preserves files and logs. A raw foreground process cannot be registered as an SCM service.
 
+Foreground and SCM startup query the current token's elevation and enabled
+Administrators membership and record structured privilege diagnostics. Restricted
+or unobservable tokens produce warnings; they do not disable HTTP or claim that
+WMI/WUA access is impossible. Actual collection errors remain authoritative.
+Non-Windows preflight explicitly reports platform_supported=false.
+
 Keep the default loopback bind unless monitoring requires a private network socket. Apply a firewall allowlist or an authenticated TLS reverse proxy when exposing it. PatchPulse performs no patch install/download operations and can coexist with WSUS and management tools. The cached WUA catalog must be refreshed by the existing Windows Update policy.
 
 ## Docker

@@ -1,6 +1,9 @@
 # Requirements and Task Completion Audit
 
-Audited against the complete historical `PatchPulse Combat Solutions.md`, all eight task specifications, implementation paths, tests, deployment recipes, and evidence documents. Audit date: 2026-10-02 (Asia/Shanghai).
+Audited against the complete historical `PatchPulse Combat Solutions.md`, the
+original eight specifications and the user-approved Tasks 09-12 extensions,
+implementation paths, tests, deployment recipes and evidence. Audit date:
+2026-10-02 (Asia/Shanghai). Extension implementation is tracked below as it lands.
 
 ## Conclusion
 
@@ -53,7 +56,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | 05.1 | Verified | All seven API routes and GET/HEAD Docker checks. |
 | 05.2 | Verified | Status and inclusive RFC3339 since; invalid/duplicate/unknown keys produce JSON errors. |
 | 05.3 | Verified | Handlers consume one immutable view and do not collect; summary exposes all documented fields. |
-| 05.4 | Implemented; partly tested | JSON 404/405, bounded metric labels and configured TimeoutLayer(408). A delayed production-route timeout is not exercised by current contracts. |
+| 05.4 | Verified | JSON 404/405/408, bounded labels and the shared production TimeoutLayer. An indefinitely delayed handler is cancelled, produces JSON 408 and increments the exact HTTP counter. All route HEAD and duplicate-query contracts are tested. |
 | 05.5 | Verified | api.md documents scope/date-only filtering, initialization/degradation and schemas. |
 | 06.1 | Implemented; Docker JSON verified | JSON/pretty/file-sink builder and jiff clock. Both JSON and pretty file-sink output are exercised by isolated foreground processes on Unix; SCM permissions remain a Windows gate. |
 | 06.2 | Verified | Collector paths emit logs and duration/success/failure telemetry, including Busy and Unsupported. |
@@ -65,6 +68,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | 07.3 | Implemented; scripts need live Windows acceptance | Administrator scripts, canonical absolute quoted paths, delayed startup/recovery; no overwrite without uninstall. |
 | 07.4 | Verified by source | New-Service uses --service and configuration validation uses --check-config. |
 | 07.5 | Documented | LocalSystem/ACL/log sink/firewall/WSUS/native deployment limitations in deployment.md and AGENT.md. |
+| 07.6 | Implemented; cross-platform contract verified | Read-only token/elevation diagnostics run on a startup blocking worker; unknown/restricted privileges warn without disabling HTTP. Real Windows token behavior remains a live gate. |
 | 08.1 | Verified locally | Fmt, Clippy, tests, rustdoc, licenses/bans, cached advisory checks. Offline provenance recorded. |
 | 08.2 | Configured; remote execution pending | Linux/macOS/Windows workflow and opt-in live Windows collector tests. No remote CI success claimed. |
 | 08.3 | Verified Linux ARM64 | Actual Docker build: non-root scratch runtime, notices, built-in probe, explicit bind. |
@@ -81,7 +85,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | 02 | Domain unit coverage met. |
 | 03 | Fixtures and Windows target compilation met; live Windows collection remains pending. |
 | 04 | Failure, empty-success, recovery, atomicity, readiness, concurrency and single-flight coverage met; actual Windows timing remains pending. |
-| 05 | Endpoint/filter/error/readiness/metric contracts met; configured slow-handler timeout has source evidence only. |
+| 05 | Endpoint/filter/error/readiness/metric contracts met, including cancellation/JSON 408/exact timeout counters and all-route HEAD behavior. |
 | 06 | Histogram/label/failure/disabled-route checks met; live resource measurements and SCM log permissions pending. |
 | 07 | Target compilation met; actual install/start/stop/reboot/recovery not met. |
 | 08 | Local Linux image and explicit evidence records met; Windows image and remote CI are not completed. |
@@ -107,7 +111,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | 2.16 degradation | Retention, partial/initial/all failure, historical readiness and stale state are covered; 408 layer has source evidence. |
 | 2.17 resource/QPS claims | Under-30-MB RSS, under-5-percent collection CPU, idle CPU, WMI under-5-s and PowerShell under-20-s remain unmeasured on Windows. Handler microbenchmarks do not prove these targets or network QPS. |
 | 2.18 tests | Host domain/contracts/pipeline/process tests and opt-in Windows tests exist; ignored or cfg-excluded tests are not counted as passed Windows execution. |
-| 2.19 privilege preflight recommendation | No separate startup token/elevation self-check exists. Collection errors expose actual access failures; installer requires admin and defaults to LocalSystem. Dedicated preflight is an unimplemented risk-mitigation recommendation, not an F1-F9 feature. |
+| 2.19 privilege preflight recommendation | Implemented read-only startup token elevation and enabled-administrator diagnostics. Restricted/unobservable tokens warn; collection errors remain authoritative for WMI/WUA access. Installer requires admin and defaults to LocalSystem. |
 | Part III AGENT.md | Replaced by an English guide with actual paths, current invariants, validation and delivery rules. |
 | Part IV four-week rollout | Code artifacts exist; its Windows operational/performance acceptance cannot be claimed complete from macOS checks. |
 
@@ -115,10 +119,10 @@ A step can have implemented code and still require platform acceptance. Step num
 
 | Item | Status |
 | --- | --- |
-| v0.2 CSV export | Not implemented; deferred roadmap. |
-| v0.3 agent/hub aggregation | Not implemented; deferred roadmap and current non-goal. |
-| v0.4 OpenTelemetry export | Not implemented; deferred roadmap. |
-| v0.5 compliance baseline comparison | Not implemented; deferred roadmap. |
+| v0.2 CSV export | User-approved current delivery; Task 09 implementation in progress. |
+| v0.3 agent/hub aggregation | User-approved current delivery; Task 10 supersedes the earlier aggregation non-goal. |
+| v0.4 OpenTelemetry export | User-approved current delivery; Task 11 implementation in progress. |
+| v0.5 compliance baseline comparison | User-approved current delivery; Task 12 implementation in progress. |
 | Patch download/install and Web UI | Explicit non-goals; intentionally absent. |
 
 ## Required external acceptance evidence
@@ -133,7 +137,7 @@ A step can have implemented code and still require platform acceptance. Step num
 
 The audit is based on current source, host regression checks, Windows-target compilation and actual local Linux Docker behavior. Existing advisory provenance remains the verified snapshot recorded in validation.md; offline checks do not establish current online database freshness. Each rewritten functional commit receives a cumulative Changelog entry and an archived-tree build check. The old commit remains recoverable through houseme/backup-65866b7. Local rewriting does not rewrite origin/main.
 
-Current host regression result: 50 tests pass: 39 service tests (21 unit/process, 5 API, 2 configuration, 8 snapshot pipeline, 2 collector contracts, 1 isolated logging contract) and 11 Rust development-tool tests. Strict host and Windows-target Clippy, rustdoc and dependency notices pass. This extends the historical 33-test review record. See rust-tooling.md for migration checks and preserved historical command evidence.
+Runtime/HTTP completion checkpoint: 53 host tests pass: 42 service tests (23 unit/process/preflight, 6 API, 2 configuration, 8 snapshot pipeline, 2 collector contracts, 1 logging contract) and 11 Rust tool tests. Strict host and Windows-target Clippy pass. The earlier rustdoc/dependency and Docker migration evidence remains recorded in rust-tooling.md; extension validation will update this checkpoint as it executes.
 
 Rebuilt Linux image patchpulse:0.1.0 (arm64) passed Rust structured-log, endpoint/hardening/healthcheck and SIGTERM verification. Image ID: `sha256:4d6d7e723021c1afc22d7909b02f508fa27c042df381937de114d0aebf8bc9d8`.
 
