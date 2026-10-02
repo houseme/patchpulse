@@ -14,6 +14,9 @@ bytes = "1.12.1"
 clap = { version = "4.6.7", features = ["derive"] }
 csv = "1.4.0"
 jiff = { version = "0.2.37", default-features = false, features = ["std", "serde"] }
+opentelemetry = { version = "0.33.0", default-features = false, features = ["trace"] }
+opentelemetry_sdk = { version = "0.33.0", default-features = false, features = ["trace"] }
+opentelemetry-otlp = { version = "0.33.0", default-features = false, features = ["trace", "http-json", "reqwest-blocking-client", "internal-logs"] }
 reqwest = { version = "0.13.5", default-features = false, features = ["rustls-no-provider"] }
 rustls = { version = "0.23.45", default-features = false, features = ["std", "ring", "tls12"] }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
@@ -23,6 +26,7 @@ tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "net", "s
 toml = "1.1.6"
 tower-http = { version = "0.7.1", features = ["timeout", "trace"] }
 tracing = "0.1.44"
+tracing-opentelemetry = { version = "0.34.0", default-features = false }
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 
 [target.'cfg(windows)'.dependencies]

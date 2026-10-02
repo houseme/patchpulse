@@ -97,7 +97,7 @@ pub fn build_with_features(
 }
 
 fn apply_policies(router: Router<ApiState>, state: ApiState, timeout: Duration) -> Router {
-    router
+    let router = router
         .fallback(|| async { api_error(StatusCode::NOT_FOUND, "not_found", "route not found") })
         .method_not_allowed_fallback(|| async {
             api_error(
@@ -113,9 +113,29 @@ fn apply_policies(router: Router<ApiState>, state: ApiState, timeout: Duration) 
         .layer(middleware::from_fn_with_state(
             state.clone(),
             record_request,
-        ))
-        .layer(TraceLayer::new_for_http())
-        .with_state(state)
+        ));
+    let router = if crate::observability::telemetry::enabled() {
+        router.layer(
+            TraceLayer::new_for_http()
+                .make_span_with(|request: &Request| {
+                    crate::observability::telemetry::server_span(request)
+                })
+                .on_response(
+                    |response: &Response, _elapsed: Duration, span: &tracing::Span| {
+                        span.record(
+                            "http.response.status_code",
+                            u64::from(response.status().as_u16()),
+                        );
+                        if response.status().is_server_error() {
+                            span.record("otel.status_code", "ERROR");
+                        }
+                    },
+                ),
+        )
+    } else {
+        router.layer(TraceLayer::new_for_http())
+    };
+    router.with_state(state)
 }
 
 fn json_bytes(bytes: Bytes) -> Response {

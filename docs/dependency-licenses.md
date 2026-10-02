@@ -2,7 +2,7 @@
 
 PatchPulse is licensed only under Apache-2.0. Dependencies retain their upstream licenses.
 This inventory includes build, test, and Windows-only packages in the resolved graph.
-Prefer Apache-2.0 where offered; otherwise retain upstream MIT, BSD-3-Clause, Unicode-3.0, ISC and CDLA-Permissive-2.0 notices.
+Prefer Apache-2.0 where offered; preserve all upstream license expressions and required notices.
 jiff is used under MIT. This does not relicense jiff or any other dependency.
 
 Regenerate with `cargo xtask dependency-policy --write` after dependency changes.
@@ -16,9 +16,12 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | anstyle-query | 1.1.5 | MIT OR Apache-2.0 |
 | anstyle-wincon | 3.0.11 | MIT OR Apache-2.0 |
 | anyhow | 1.0.104 | MIT OR Apache-2.0 |
+| async-trait | 0.1.92 | MIT OR Apache-2.0 |
 | atomic-waker | 1.1.2 | Apache-2.0 OR MIT |
+| autocfg | 1.5.1 | Apache-2.0 OR MIT |
 | axum | 0.8.9 | MIT |
 | axum-core | 0.5.6 | MIT |
+| base64 | 0.22.1 | MIT OR Apache-2.0 |
 | base64 | 0.23.1 | MIT OR Apache-2.0 |
 | bitflags | 1.3.2 | MIT/Apache-2.0 |
 | bitflags | 2.13.2 | MIT OR Apache-2.0 |
@@ -32,14 +35,17 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | clap_lex | 1.1.1 | MIT OR Apache-2.0 |
 | colorchoice | 1.0.5 | MIT OR Apache-2.0 |
 | combine | 4.6.8 | MIT |
+| const-hex | 1.19.3 | MIT OR Apache-2.0 |
 | core-foundation | 0.10.1 | MIT OR Apache-2.0 |
 | core-foundation-sys | 0.8.7 | MIT OR Apache-2.0 |
+| cpufeatures | 0.2.17 | MIT OR Apache-2.0 |
 | csv | 1.4.0 | Unlicense/MIT |
 | csv-core | 0.1.13 | Unlicense/MIT |
 | defmt | 1.1.1 | MIT OR Apache-2.0 |
 | defmt-macros | 1.1.1 | MIT OR Apache-2.0 |
 | defmt-parser | 1.0.0 | MIT OR Apache-2.0 |
 | displaydoc | 0.2.7 | MIT OR Apache-2.0 |
+| either | 1.18.0 | MIT OR Apache-2.0 |
 | equivalent | 1.0.2 | Apache-2.0 OR MIT |
 | errno | 0.3.14 | MIT OR Apache-2.0 |
 | find-msvc-tools | 0.1.14 | MIT OR Apache-2.0 |
@@ -47,10 +53,14 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | form_urlencoded | 1.2.2 | MIT OR Apache-2.0 |
 | futures-channel | 0.3.34 | MIT OR Apache-2.0 |
 | futures-core | 0.3.34 | MIT OR Apache-2.0 |
+| futures-executor | 0.3.34 | MIT OR Apache-2.0 |
+| futures-io | 0.3.34 | MIT OR Apache-2.0 |
+| futures-macro | 0.3.34 | MIT OR Apache-2.0 |
 | futures-sink | 0.3.34 | MIT OR Apache-2.0 |
 | futures-task | 0.3.34 | MIT OR Apache-2.0 |
 | futures-util | 0.3.34 | MIT OR Apache-2.0 |
 | getrandom | 0.2.17 | MIT OR Apache-2.0 |
+| getrandom | 0.3.4 | MIT OR Apache-2.0 |
 | h2 | 0.4.19 | MIT |
 | hashbrown | 0.17.1 | MIT OR Apache-2.0 |
 | heck | 0.5.0 | MIT OR Apache-2.0 |
@@ -74,6 +84,7 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | indexmap | 2.14.2 | Apache-2.0 OR MIT |
 | ipnet | 2.12.2 | MIT OR Apache-2.0 |
 | is_terminal_polyfill | 1.70.2 | MIT OR Apache-2.0 |
+| itertools | 0.14.0 | MIT OR Apache-2.0 |
 | itoa | 1.0.18 | MIT OR Apache-2.0 |
 | jiff | 0.2.37 | Unlicense OR MIT |
 | jiff-core | 0.1.1 | Unlicense OR MIT |
@@ -93,16 +104,31 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | mime | 0.3.17 | MIT OR Apache-2.0 |
 | mio | 1.2.3 | MIT |
 | nu-ansi-term | 0.50.3 | MIT |
+| num-traits | 0.2.19 | MIT OR Apache-2.0 |
 | once_cell | 1.21.4 | MIT OR Apache-2.0 |
 | once_cell_polyfill | 1.70.2 | MIT OR Apache-2.0 |
 | openssl-probe | 0.2.1 | MIT OR Apache-2.0 |
+| opentelemetry | 0.33.0 | Apache-2.0 |
+| opentelemetry-http | 0.33.0 | Apache-2.0 |
+| opentelemetry-otlp | 0.33.0 | Apache-2.0 |
+| opentelemetry-proto | 0.33.0 | Apache-2.0 |
+| opentelemetry_sdk | 0.33.0 | Apache-2.0 |
 | percent-encoding | 2.3.2 | MIT OR Apache-2.0 |
 | pin-project-lite | 0.2.17 | Apache-2.0 OR MIT |
 | portable-atomic | 1.15.0 | Apache-2.0 OR MIT |
 | portable-atomic-util | 0.2.8 | Apache-2.0 OR MIT |
 | potential_utf | 0.1.6 | Unicode-3.0 |
+| ppv-lite86 | 0.2.21 | MIT OR Apache-2.0 |
 | proc-macro2 | 1.0.107 | MIT OR Apache-2.0 |
+| proptest | 1.11.0 | MIT OR Apache-2.0 |
+| prost | 0.14.4 | Apache-2.0 |
+| prost-derive | 0.14.4 | Apache-2.0 |
 | quote | 1.0.47 | MIT OR Apache-2.0 |
+| r-efi | 5.3.0 | MIT OR Apache-2.0 OR LGPL-2.1-or-later |
+| rand | 0.9.5 | MIT OR Apache-2.0 |
+| rand_chacha | 0.9.0 | MIT OR Apache-2.0 |
+| rand_core | 0.9.5 | MIT OR Apache-2.0 |
+| rand_xorshift | 0.4.0 | MIT OR Apache-2.0 |
 | regex-automata | 0.4.18 | MIT OR Apache-2.0 |
 | regex-syntax | 0.8.11 | MIT OR Apache-2.0 |
 | reqwest | 0.13.5 | MIT OR Apache-2.0 |
@@ -164,9 +190,11 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | tracing-attributes | 0.1.31 | MIT |
 | tracing-core | 0.1.36 | MIT |
 | tracing-log | 0.2.0 | MIT |
+| tracing-opentelemetry | 0.34.0 | MIT |
 | tracing-serde | 0.2.0 | MIT |
 | tracing-subscriber | 0.3.23 | MIT |
 | try-lock | 0.2.5 | MIT |
+| unarray | 0.1.4 | MIT OR Apache-2.0 |
 | unicode-ident | 1.0.26 | (MIT OR Apache-2.0) AND Unicode-3.0 |
 | untrusted | 0.9.0 | ISC |
 | url | 2.5.8 | MIT OR Apache-2.0 |
@@ -176,12 +204,14 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | walkdir | 2.5.0 | Unlicense/MIT |
 | want | 0.3.1 | MIT |
 | wasi | 0.11.1+wasi-snapshot-preview1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
+| wasip2 | 1.0.4+wasi-0.2.12 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | wasm-bindgen | 0.2.129 | MIT OR Apache-2.0 |
 | wasm-bindgen-futures | 0.4.79 | MIT OR Apache-2.0 |
 | wasm-bindgen-macro | 0.2.129 | MIT OR Apache-2.0 |
 | wasm-bindgen-macro-support | 0.2.129 | MIT OR Apache-2.0 |
 | wasm-bindgen-shared | 0.2.129 | MIT OR Apache-2.0 |
 | web-sys | 0.3.106 | MIT OR Apache-2.0 |
+| web-time | 1.1.0 | MIT OR Apache-2.0 |
 | webpki-root-certs | 1.0.9 | CDLA-Permissive-2.0 |
 | widestring | 1.2.1 | MIT OR Apache-2.0 |
 | winapi-util | 0.1.11 | Unlicense OR MIT |
@@ -209,9 +239,12 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | windows_x86_64_gnullvm | 0.52.6 | MIT OR Apache-2.0 |
 | windows_x86_64_msvc | 0.52.6 | MIT OR Apache-2.0 |
 | winnow | 1.0.4 | MIT |
+| wit-bindgen | 0.57.1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | writeable | 0.6.4 | Unicode-3.0 |
 | yoke | 0.8.3 | Unicode-3.0 |
 | yoke-derive | 0.8.4 | Unicode-3.0 |
+| zerocopy | 0.8.59 | BSD-2-Clause OR Apache-2.0 OR MIT |
+| zerocopy-derive | 0.8.59 | BSD-2-Clause OR Apache-2.0 OR MIT |
 | zerofrom | 0.1.8 | Unicode-3.0 |
 | zerofrom-derive | 0.1.8 | Unicode-3.0 |
 | zeroize | 1.9.0 | Apache-2.0 OR MIT |

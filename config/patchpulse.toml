@@ -24,6 +24,14 @@ metrics_enabled = true
 # Set a writable log file for SCM mode, which has no console.
 # log_file = "C:/PatchPulse/logs/patchpulse.jsonl"
 
+[observability.traces]
+enabled = false
+endpoint = "http://127.0.0.1:4318/v1/traces"
+service_name = "patchpulse"
+sample_ratio = 0.1
+max_queue_size = 1024
+export_timeout_secs = 2
+
 [baseline]
 enabled = false
 name = "monthly"

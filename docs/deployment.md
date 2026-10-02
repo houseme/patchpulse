@@ -43,6 +43,8 @@ Keep the default loopback bind unless monitoring requires a private network sock
 
 The service also supports configured Agent/Hub operation; see [fleet.md](fleet.md)
 and config/hub.toml for polling, HTTPS and machine-scoped baseline deployment.
+Optional OTLP trace export is described in [telemetry.md](telemetry.md); its
+configured local or remote collector is independent of Prometheus scraping.
 
 ```sh
 docker build -t patchpulse:0.1.0 .

@@ -79,3 +79,10 @@ failures and baseline semantics are specified in [fleet.md](fleet.md).
 The fleet baseline reports non_compliant on any conclusive fresh-agent failure,
 unknown if no failure is known but an agent is unknown, and compliant only when
 every configured agent is fresh and compliant.
+
+## Optional trace context
+
+When OTLP traces are enabled, W3C traceparent/tracestate are accepted on HTTP
+requests and forwarded by hub polls to configured agents. Trace attributes use
+bounded route templates and method classes; API JSON and Prometheus schemas do
+not change. See [telemetry.md](telemetry.md) for export configuration and limits.

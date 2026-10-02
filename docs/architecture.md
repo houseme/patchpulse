@@ -55,6 +55,13 @@ Foreground and SCM modes share two Tokio workers and a maximum of eight blocking
 
 ## Observability
 
+Optional OTLP/HTTP JSON trace export runs on a bounded OpenTelemetry SDK batch
+worker. Agent HTTP, collectors and hub polls use fixed route/backend and bounded
+agent attributes. W3C trace context is received from callers and forwarded only
+to configured hub targets; inventory bodies, scripts, commands and credentials
+are excluded from span attributes. Export failure remains independent of
+readiness, JSON logs and Prometheus. See [telemetry.md](telemetry.md).
+
 Tracing emits JSON or pretty logs with jiff timestamps. A process-local metrics registry renders Prometheus 0.0.4 text without a global recorder. It tracks collector duration histograms, success/failure counters, snapshot age/count/stale/reboot gauges, and HTTP responses with bounded route labels. Unknown routes share the `unmatched` label.
 
 The resource goals from the proposal (under 30 MiB RSS and low collection CPU) remain unverified targets until measured on Windows Server. Compilation and fixture tests are not live Windows collection evidence.

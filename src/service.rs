@@ -99,7 +99,7 @@ fn run_service() -> anyhow::Result<()> {
         if let Some(bind) = cli.bind {
             config.server.bind = bind;
         }
-        observability::init_logging(&config.observability)?;
+        let _traces = observability::init_logging(&config.observability)?;
         app::block_on(app::run(config, receiver, || {
             handle.set_service_status(status(ServiceState::Running, 0))?;
             Ok(())

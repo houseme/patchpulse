@@ -5,6 +5,7 @@ use std::{
     },
     time::{Duration, Instant},
 };
+use tracing::Instrument as _;
 
 use super::traits::{BackendOutcome, CollectError, Collector};
 use crate::observability::Metrics;
@@ -75,44 +76,62 @@ impl Orchestrator {
             let guard = FlightGuard(Arc::clone(&slot.busy));
             let timeout = self.timeout;
             let metrics = metrics.clone();
-            tasks.spawn(async move {
-                let started = Instant::now();
-                let backend = Arc::clone(&slot.collector);
-                let worker = tokio::task::spawn_blocking(move || {
-                    // The guard remains in the blocking task even after its caller times out.
-                    let _guard = guard;
-                    let result = backend.collect();
-                    (result, jiff::Timestamp::now())
-                });
-                let (result, finished_at) = match tokio::time::timeout(timeout, worker).await {
-                    Ok(Ok(completed)) => completed,
-                    Ok(Err(error)) => (
-                        Err(CollectError::Backend(format!("{name} worker: {error}"))),
-                        jiff::Timestamp::now(),
-                    ),
-                    Err(_) => (
-                        Err(CollectError::Timeout(timeout.as_secs())),
-                        jiff::Timestamp::now(),
-                    ),
-                };
-                metrics.record_collection(name, started.elapsed().as_secs_f64(), result.is_ok());
-                match &result {
-                    Ok(batch) => tracing::info!(
-                        collector = name,
-                        records = batch.records.len(),
-                        "collector succeeded"
-                    ),
-                    Err(error) => {
-                        tracing::warn!(collector = name, error = %error, "collector failed")
+            let span = tracing::info_span!(
+                "patchpulse.collector",
+                otel.kind = "internal",
+                otel.status_code = tracing::field::Empty,
+                collector = name
+            );
+            tasks.spawn(
+                async move {
+                    let started = Instant::now();
+                    let backend = Arc::clone(&slot.collector);
+                    let worker_span = tracing::Span::current();
+                    let worker = tokio::task::spawn_blocking(move || {
+                        let _entered = worker_span.enter();
+                        // The guard remains in the blocking task even after its caller times out.
+                        let _guard = guard;
+                        let result = backend.collect();
+                        (result, jiff::Timestamp::now())
+                    });
+                    let (result, finished_at) = match tokio::time::timeout(timeout, worker).await {
+                        Ok(Ok(completed)) => completed,
+                        Ok(Err(error)) => (
+                            Err(CollectError::Backend(format!("{name} worker: {error}"))),
+                            jiff::Timestamp::now(),
+                        ),
+                        Err(_) => (
+                            Err(CollectError::Timeout(timeout.as_secs())),
+                            jiff::Timestamp::now(),
+                        ),
+                    };
+                    metrics.record_collection(
+                        name,
+                        started.elapsed().as_secs_f64(),
+                        result.is_ok(),
+                    );
+                    if result.is_err() {
+                        tracing::Span::current().record("otel.status_code", "ERROR");
+                    }
+                    match &result {
+                        Ok(batch) => tracing::info!(
+                            collector = name,
+                            records = batch.records.len(),
+                            "collector succeeded"
+                        ),
+                        Err(error) => {
+                            tracing::warn!(collector = name, error = %error, "collector failed")
+                        }
+                    }
+                    BackendOutcome {
+                        name,
+                        finished_at,
+                        result,
+                        in_flight: slot.busy.load(Ordering::Acquire),
                     }
                 }
-                BackendOutcome {
-                    name,
-                    finished_at,
-                    result,
-                    in_flight: slot.busy.load(Ordering::Acquire),
-                }
-            });
+                .instrument(span),
+            );
         }
         while let Some(result) = tasks.join_next().await {
             match result {
