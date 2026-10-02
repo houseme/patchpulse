@@ -21,3 +21,9 @@ Requirements: approved v0.5 roadmap; depends on Tasks 02, 04, 05, 10.
 
 Every conclusion identifies the named baseline and input freshness. Existing
 inventory fields are unchanged. No baseline action installs or approves updates.
+
+## Implementation record
+
+Agent configuration/domain/router comparison is implemented and real-router
+contracts cover unknown, pending/non-compliant, fresh compliant and retained
+stale states plus disabled/write rejection. Fleet comparison lands with Task 10.

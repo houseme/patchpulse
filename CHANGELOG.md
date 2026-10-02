@@ -16,6 +16,12 @@ Unreleased entries do not announce a published release.
 - Prepare RFC 4180 UTF-8 CSV and row spans during publication; share full bodies, copy filtered rows and retain buffers after collection failures.
 - Escape spreadsheet formula cells and preserve commas, quotes, Unicode and multiline text; verify export contracts without external programs.
 
+### Patch baseline comparison
+
+- Add opt-in named KB baselines with strict normalization, duplicate removal and enabled-empty rejection.
+- Expose installed/missing/pending KBs and compliant/non-compliant/unknown conclusions from one immutable view; stale or incomplete observations never establish compliance.
+- Use binary searches in prepared sorted inventories without building per-request patch indexes; preserve exact-KB semantics and read-only contracts.
+
 ### Foundation, configuration, and patch model
 
 - Add the edition-2024 Rust library, pinned toolchain and dependency lockfile; license PatchPulse under Apache-2.0 and retain upstream notices.

@@ -32,6 +32,52 @@ pub struct Config {
     pub collector: CollectorConfig,
     pub cache: CacheConfig,
     pub observability: ObservabilityConfig,
+    pub baseline: BaselineConfig,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct BaselineConfig {
+    pub enabled: bool,
+    pub name: String,
+    pub required_kbs: Vec<String>,
+}
+impl Default for BaselineConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            name: "default".into(),
+            required_kbs: Vec::new(),
+        }
+    }
+}
+impl BaselineConfig {
+    pub fn prepare(&self) -> anyhow::Result<Option<crate::domain::baseline::Baseline>> {
+        anyhow::ensure!(
+            !self.name.trim().is_empty() && self.name.len() <= 128,
+            "baseline name must contain 1..128 bytes"
+        );
+        anyhow::ensure!(
+            self.required_kbs.len() <= 10_000,
+            "baseline contains more than 10000 KBs"
+        );
+        let required_kbs = self
+            .required_kbs
+            .iter()
+            .map(|kb| {
+                crate::domain::patch::normalize_kb(kb)
+                    .with_context(|| format!("invalid baseline KB: {kb}"))
+            })
+            .collect::<anyhow::Result<std::collections::BTreeSet<_>>>()?;
+        anyhow::ensure!(
+            !self.enabled || !required_kbs.is_empty(),
+            "an enabled baseline must contain at least one KB"
+        );
+        Ok(self.enabled.then(|| crate::domain::baseline::Baseline {
+            name: self.name.clone(),
+            required_kbs,
+        }))
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -145,6 +191,7 @@ impl Config {
     }
 
     pub fn validate(&self) -> anyhow::Result<()> {
+        self.baseline.prepare()?;
         for (name, value) in [
             ("request_timeout_secs", self.server.request_timeout_secs),
             ("interval_secs", self.collector.interval_secs),
