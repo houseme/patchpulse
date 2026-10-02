@@ -1,0 +1,20 @@
+{
+  "crate": "jni-sys-macros",
+  "version": "0.4.1",
+  "commit": "64d77b7a5f119d7b55b4e2c169a4668067ff59e6",
+  "checked_on": "2026-10-02",
+  "sources": [
+    {
+      "file": "LICENSE-APACHE",
+      "url": "https://raw.githubusercontent.com/jni-rs/jni-sys/64d77b7a5f119d7b55b4e2c169a4668067ff59e6/LICENSE-APACHE",
+      "retrieved_via": "https://api.github.com/repos/jni-rs/jni-sys/contents/LICENSE-APACHE?ref=64d77b7a5f119d7b55b4e2c169a4668067ff59e6",
+      "git_blob": "8f71f43fee3f78649d238238cbde51e6d7055c82"
+    },
+    {
+      "file": "LICENSE-MIT",
+      "url": "https://raw.githubusercontent.com/jni-rs/jni-sys/64d77b7a5f119d7b55b4e2c169a4668067ff59e6/LICENSE-MIT",
+      "retrieved_via": "https://api.github.com/repos/jni-rs/jni-sys/contents/LICENSE-MIT?ref=64d77b7a5f119d7b55b4e2c169a4668067ff59e6",
+      "git_blob": "2008402b8a1299cf118ea38e02116bfcc72e53c3"
+    }
+  ]
+}

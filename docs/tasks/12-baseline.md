@@ -26,4 +26,5 @@ inventory fields are unchanged. No baseline action installs or approves updates.
 
 Agent configuration/domain/router comparison is implemented and real-router
 contracts cover unknown, pending/non-compliant, fresh compliant and retained
-stale states plus disabled/write rejection. Fleet comparison lands with Task 10.
+stale states plus disabled/write rejection. Task 10 adds per-agent/fleet reports,
+including transport-failure and missing-agent unknown states.

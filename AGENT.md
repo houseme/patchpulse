@@ -5,9 +5,11 @@ not the illustrative code in the historical combat-solutions proposal.
 
 ## Purpose and constraints
 
-PatchPulse is a read-only Windows patch health service. It collects installed and
-pending updates, publishes immutable snapshots, serves HTTP queries, and exports
-Prometheus metrics. Production targets are Windows Server 2016/2019/2022 x86_64;
+PatchPulse is a read-only Windows patch health agent with an optional configured
+aggregation hub. Agents collect installed and pending updates, publish immutable
+snapshots and serve HTTP queries and Prometheus metrics. Hubs poll configured
+agents, preserve per-machine identities/failures and publish immutable fleet
+views. Agent production targets are Windows Server 2016/2019/2022 x86_64;
 Windows 10/11 are potential extensions. Domain, API, and fixture tests run on
 Linux/macOS; Windows backends return explicit Unsupported errors there.
 
@@ -42,6 +44,8 @@ platform APIs or HTTP/runtime dependencies.
 | src/collector/process.rs | Output limits, execution/drain deadline and process jobs |
 | src/cache/mod.rs | Transactional assembly and immutable prepared publication |
 | src/export.rs | Prepared spreadsheet-safe CSV bodies and complete row spans |
+| src/hub.rs | Bounded configured-agent polling and immutable machine-scoped fleet state |
+| src/net.rs | Outbound certificate-validating TLS client policy |
 | src/scheduler/mod.rs | Immediate/periodic ticks; sole snapshot publisher |
 | src/api/mod.rs | Read-only handlers, cached JSON, filters and contracts |
 | src/observability/mod.rs | Tracing, bounded HTTP counters and Prometheus formatting |
@@ -135,7 +139,7 @@ Required validation commands:
 cargo fmt --all --check
 cargo clippy --all-targets --all-features --locked -- -D warnings
 cargo test --all-targets --all-features --locked
-cargo clippy --all-targets --all-features --locked --target x86_64-pc-windows-gnu -- -D warnings
+sh scripts/check-windows-gnu.sh
 cargo doc --no-deps --locked
 cargo deny check
 cargo audit
@@ -146,6 +150,11 @@ For restricted networks, cargo-deny can use its offline cache and cargo-audit ca
 use a verified advisory snapshot. Record the exact database provenance; never
 claim a fresh online fetch from an offline check. syn 2/3 coexist because of
 upstream macro constraints and should not be rewritten without evidence.
+
+TLS also adds compatibility-bound tower-http and Windows binding generations.
+HTTPS uses ring C compilation; Windows checks on other hosts require a C cross
+compiler. The local check uses existing Zig wrappers; native Windows CI uses its
+installed compiler. Cross compilation still does not establish Windows execution.
 
 Add focused tests for changed domain rules and HTTP contracts. Collector changes
 must retain partial-failure, empty-success, timeout/single-flight, and cancellation

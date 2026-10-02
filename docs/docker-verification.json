@@ -1,8 +1,8 @@
 {
   "image": "patchpulse:0.1.0",
-  "image_id": "sha256:4d6d7e723021c1afc22d7909b02f508fa27c042df381937de114d0aebf8bc9d8",
+  "image_id": "sha256:ef942a4d9e459e42652fe1160bd0c1e27fdd436a32008e83ad8c9e1b5d8ad22c",
   "architecture": "arm64",
-  "size_bytes": 3523955,
+  "size_bytes": 5053927,
   "non_root": true,
   "read_only": true,
   "healthcheck": "passed",

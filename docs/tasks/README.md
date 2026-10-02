@@ -19,9 +19,9 @@ Project constraints: Apache-2.0 only for PatchPulse; English code comments; curr
 | 07 | [Windows Service Lifecycle and Deployment](07-service.md) | 01, 04, 05 | Implemented; live Windows gate pending |
 | 08 | [CI, Dependency Audit, and Docker Delivery](08-delivery.md) | 01-07 | Implemented; Linux image verified; remote CI pending |
 | 09 | [CSV Inventory Export](09-csv-export.md) | 02, 04, 05 | Implemented; export contracts pass |
-| 10 | [Agent and Hub Aggregation](10-agent-hub.md) | 03-06 | Approved; implementation in progress |
+| 10 | [Agent and Hub Aggregation](10-agent-hub.md) | 03-06 | Implemented; real HTTP/TLS and lifecycle contracts pass |
 | 11 | [OpenTelemetry Trace Export](11-opentelemetry.md) | 03, 05, 06, 10 | Approved; implementation in progress |
-| 12 | [Patch Baseline Comparison](12-baseline.md) | 02, 04, 05, 10 | Agent implemented; fleet comparison follows Task 10 |
+| 12 | [Patch Baseline Comparison](12-baseline.md) | 02, 04, 05, 10 | Agent and fleet implemented; contracts pass |
 
 ## Completion audit
 

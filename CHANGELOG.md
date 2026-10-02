@@ -22,6 +22,13 @@ Unreleased entries do not announce a published release.
 - Expose installed/missing/pending KBs and compliant/non-compliant/unknown conclusions from one immutable view; stale or incomplete observations never establish compliance.
 - Use binary searches in prepared sorted inventories without building per-request patch indexes; preserve exact-KB semantics and read-only contracts.
 
+### Agent and hub aggregation
+
+- Add explicit agent/hub modes and versioned coherent snapshot exchange; preserve each configured machine's identity and errors.
+- Poll trusted HTTP(S) targets with pooled clients, bounded concurrency/time/body/cache budgets, certificate validation and redirect rejection; retain failed-source data and cancel polling on shutdown.
+- Expose fleet and per-machine snapshot/baseline queries and aggregate metric counts; keep token values and target URLs out of responses/logs.
+- Include native CA data/notices in Linux packaging and exact-commit fallback licenses for upstream archives that omit them.
+
 ### Foundation, configuration, and patch model
 
 - Add the edition-2024 Rust library, pinned toolchain and dependency lockfile; license PatchPulse under Apache-2.0 and retain upstream notices.

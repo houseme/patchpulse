@@ -120,9 +120,9 @@ A step can have implemented code and still require platform acceptance. Step num
 | Item | Status |
 | --- | --- |
 | v0.2 CSV export | Implemented; prepared UTF-8 CSV, filters, formula escaping, failure retention and actual router contracts pass (Task 09). |
-| v0.3 agent/hub aggregation | User-approved current delivery; Task 10 supersedes the earlier aggregation non-goal. |
+| v0.3 agent/hub aggregation | Implemented bounded HTTP(S) configured-agent polling, per-host retention/readiness/metrics and actual HTTP/TLS-rejection contracts; Task 10 supersedes the earlier non-goal. |
 | v0.4 OpenTelemetry export | User-approved current delivery; Task 11 implementation in progress. |
-| v0.5 compliance baseline comparison | Agent exact-KB comparison implemented with stale/initial unknown results; fleet comparison follows Task 10. |
+| v0.5 compliance baseline comparison | Agent and fleet exact-KB comparison implemented; missing and source/transport-stale observations yield unknown per-agent compliance. |
 | Patch download/install and Web UI | Explicit non-goals; intentionally absent. |
 
 ## Required external acceptance evidence
@@ -137,9 +137,18 @@ A step can have implemented code and still require platform acceptance. Step num
 
 The audit is based on current source, host regression checks, Windows-target compilation and actual local Linux Docker behavior. Existing advisory provenance remains the verified snapshot recorded in validation.md; offline checks do not establish current online database freshness. Each rewritten functional commit receives a cumulative Changelog entry and an archived-tree build check. The old commit remains recoverable through houseme/backup-65866b7. Local rewriting does not rewrite origin/main.
 
-Runtime/HTTP completion checkpoint: 53 host tests pass: 42 service tests (23 unit/process/preflight, 6 API, 2 configuration, 8 snapshot pipeline, 2 collector contracts, 1 logging contract) and 11 Rust tool tests. Strict host and Windows-target Clippy pass. The earlier rustdoc/dependency and Docker migration evidence remains recorded in rust-tooling.md; extension validation will update this checkpoint as it executes.
+Agent/Hub completion checkpoint: 66 host tests pass: 23 unit/process/preflight,
+6 API, 3 baseline, 2 CSV, 8 Hub, 2 collector, 2 configuration, 1 logging,
+8 snapshot pipeline and 11 Rust tool tests. Strict host and Windows-target
+Clippy, upstream license notices and offline cargo-deny pass. The earlier Docker
+evidence in rust-tooling.md predates Hub packaging; this checkpoint does not
+claim a rebuilt Hub image or deployed multi-host acceptance. Task 11 trace
+validation will update this checkpoint when executed.
 
-Rebuilt Linux image patchpulse:0.1.0 (arm64) passed Rust structured-log, endpoint/hardening/healthcheck and SIGTERM verification. Image ID: `sha256:4d6d7e723021c1afc22d7909b02f508fa27c042df381937de114d0aebf8bc9d8`.
+Rebuilt Linux image patchpulse:0.1.0 (arm64) passed Rust structured-log,
+endpoint/hardening/healthcheck and SIGTERM verification after Hub/TLS packaging.
+It includes CA data and upstream notices. Image ID:
+`sha256:ef942a4d9e459e42652fe1160bd0c1e27fdd436a32008e83ad8c9e1b5d8ad22c`.
 
 ## Rewritten functional history
 

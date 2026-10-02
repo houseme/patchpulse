@@ -55,11 +55,17 @@ pub enum HttpRoute {
     Summary,
     Export,
     Baseline,
+    Snapshot,
+    Agents,
+    AgentSnapshot,
+    FleetSummary,
+    AgentBaseline,
+    FleetBaseline,
     Metrics,
     Other,
 }
 impl HttpRoute {
-    const ALL: [Self; 10] = [
+    const ALL: [Self; 16] = [
         Self::Health,
         Self::Ready,
         Self::Version,
@@ -68,6 +74,12 @@ impl HttpRoute {
         Self::Summary,
         Self::Export,
         Self::Baseline,
+        Self::Snapshot,
+        Self::Agents,
+        Self::AgentSnapshot,
+        Self::FleetSummary,
+        Self::AgentBaseline,
+        Self::FleetBaseline,
         Self::Metrics,
         Self::Other,
     ];
@@ -81,6 +93,16 @@ impl HttpRoute {
             "/patches/summary" => Self::Summary,
             "/patches/export" => Self::Export,
             "/patches/baseline" => Self::Baseline,
+            "/snapshot" => Self::Snapshot,
+            "/agents" => Self::Agents,
+            "/fleet/summary" => Self::FleetSummary,
+            "/fleet/baseline" => Self::FleetBaseline,
+            path if path.starts_with("/agents/") && path.ends_with("/snapshot") => {
+                Self::AgentSnapshot
+            }
+            path if path.starts_with("/agents/") && path.ends_with("/baseline") => {
+                Self::AgentBaseline
+            }
             "/metrics" => Self::Metrics,
             _ => Self::Other,
         }
@@ -95,6 +117,12 @@ impl HttpRoute {
             Self::Summary => "/patches/summary",
             Self::Export => "/patches/export",
             Self::Baseline => "/patches/baseline",
+            Self::Snapshot => "/snapshot",
+            Self::Agents => "/agents",
+            Self::FleetSummary => "/fleet/summary",
+            Self::FleetBaseline => "/fleet/baseline",
+            Self::AgentSnapshot => "/agents/{id}/snapshot",
+            Self::AgentBaseline => "/agents/{id}/baseline",
             Self::Metrics => "/metrics",
             Self::Other => "unmatched",
         }
@@ -129,6 +157,14 @@ struct Registry {
 #[derive(Clone)]
 pub struct Metrics {
     inner: Arc<Registry>,
+}
+#[derive(Debug, Clone, Copy)]
+pub struct InventoryGauges {
+    pub age_seconds: Option<i64>,
+    pub installed: usize,
+    pub pending: usize,
+    pub is_stale: bool,
+    pub reboot_required: bool,
 }
 impl Default for Metrics {
     fn default() -> Self {
@@ -202,6 +238,15 @@ impl Metrics {
         stale_after_secs: u64,
         now: jiff::Timestamp,
     ) -> String {
+        self.render_gauges(InventoryGauges {
+            age_seconds: snapshot.age_seconds(now),
+            installed: snapshot.installed.len(),
+            pending: snapshot.pending.len(),
+            is_stale: snapshot.is_stale(now, stale_after_secs),
+            reboot_required: snapshot.reboot_required,
+        })
+    }
+    pub fn render_gauges(&self, gauges: InventoryGauges) -> String {
         // Formatting is outside the lock; collector histogram values remain one coherent sample.
         let collectors = self
             .inner
@@ -290,27 +335,27 @@ impl Metrics {
             (
                 "patchpulse_snapshot_age_seconds",
                 "Oldest available backend snapshot age; -1 before collection.",
-                snapshot.age_seconds(now).unwrap_or(-1),
+                gauges.age_seconds.unwrap_or(-1),
             ),
             (
                 "patchpulse_installed_patches",
                 "Installed patch count.",
-                snapshot.installed.len() as i64,
+                gauges.installed as i64,
             ),
             (
                 "patchpulse_pending_patches",
                 "Pending patch count.",
-                snapshot.pending.len() as i64,
+                gauges.pending as i64,
             ),
             (
                 "patchpulse_stale",
                 "Snapshot incomplete, failed, or beyond age threshold.",
-                i64::from(snapshot.is_stale(now, stale_after_secs)),
+                i64::from(gauges.is_stale),
             ),
             (
                 "patchpulse_reboot_required",
                 "System or update reports a required reboot.",
-                i64::from(snapshot.reboot_required),
+                i64::from(gauges.reboot_required),
             ),
         ] {
             family(&mut text, name, "gauge", help);

@@ -23,14 +23,30 @@ pub async fn run(
     mut shutdown: watch::Receiver<bool>,
     on_listening: impl FnOnce() -> anyhow::Result<()>,
 ) -> anyhow::Result<()> {
-    tokio::task::spawn_blocking(crate::preflight::log_startup)
-        .await
-        .context("startup preflight worker")?;
+    if config.mode == crate::config::Mode::Agent {
+        tokio::task::spawn_blocking(crate::preflight::log_startup)
+            .await
+            .context("startup preflight worker")?;
+    }
     let listener = tokio::net::TcpListener::bind(config.server.bind)
         .await
         .context("bind HTTP listener")?;
-    let orchestrator = Arc::new(collector::build(&config.collector));
-    let store = SnapshotStore::new(config.cache.stale_after_secs, &orchestrator.enabled_names());
+    let orchestrator = (config.mode == crate::config::Mode::Agent)
+        .then(|| Arc::new(collector::build(&config.collector)));
+    let hub = if config.mode == crate::config::Mode::Hub {
+        let settings = config.hub.clone();
+        Some(Arc::new(
+            tokio::task::spawn_blocking(move || crate::hub::Hub::new(&settings))
+                .await
+                .context("hub startup worker")??,
+        ))
+    } else {
+        None
+    };
+    let enabled = orchestrator
+        .as_ref()
+        .map_or_else(Vec::new, |orchestrator| orchestrator.enabled_names());
+    let store = SnapshotStore::new(config.cache.stale_after_secs, &enabled);
     let metrics = Metrics::default();
     let router = api::build_with_features(
         ApiState {
@@ -41,17 +57,24 @@ pub async fn run(
         config.server.request_timeout_secs,
         api::ApiFeatures {
             baseline: config.baseline.prepare()?,
+            hub: hub.as_ref().map(|hub| hub.store.clone()),
         },
     );
     on_listening()?;
     tracing::info!(address = %listener.local_addr()?, "PatchPulse listening");
-    let scheduler = tokio::spawn(scheduler::run(
-        store,
-        Arc::clone(&orchestrator),
-        metrics,
-        config.collector.interval_secs,
-        shutdown.clone(),
-    ));
+    let scheduler = if let Some(hub) = hub {
+        tokio::spawn(crate::hub::run(hub, metrics, shutdown.clone()))
+    } else if let Some(orchestrator) = &orchestrator {
+        tokio::spawn(scheduler::run(
+            store,
+            Arc::clone(orchestrator),
+            metrics,
+            config.collector.interval_secs,
+            shutdown.clone(),
+        ))
+    } else {
+        anyhow::bail!("no configured publication mode");
+    };
     let mut stop_observer = shutdown.clone();
     let server = axum::serve(listener, router).with_graceful_shutdown(async move {
         while !*shutdown.borrow() {
@@ -70,7 +93,9 @@ pub async fn run(
             }
         } => None,
     };
-    orchestrator.cancel();
+    if let Some(orchestrator) = orchestrator {
+        orchestrator.cancel();
+    }
     let result = match completed {
         Some(result) => result.context("serve HTTP"),
         None => match tokio::time::timeout(Duration::from_secs(10), &mut server).await {

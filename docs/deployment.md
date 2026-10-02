@@ -41,6 +41,9 @@ Keep the default loopback bind unless monitoring requires a private network sock
 
 ## Docker
 
+The service also supports configured Agent/Hub operation; see [fleet.md](fleet.md)
+and config/hub.toml for polling, HTTPS and machine-scoped baseline deployment.
+
 ```sh
 docker build -t patchpulse:0.1.0 .
 docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges \

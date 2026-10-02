@@ -25,6 +25,7 @@ pub struct ApiState {
 #[derive(Clone, Default)]
 pub struct ApiFeatures {
     pub baseline: Option<crate::domain::baseline::Baseline>,
+    pub hub: Option<crate::hub::FleetStore>,
 }
 
 pub fn build(state: ApiState, metrics_enabled: bool, timeout_secs: u64) -> Router {
@@ -62,20 +63,36 @@ pub fn build_with_features(
                     license: "Apache-2.0",
                 })
             }),
-        )
-        .route("/patches", get(installed))
-        .route("/patches/pending", get(pending))
-        .route("/patches/export", get(export))
-        .route("/patches/summary", get(summary));
+        );
+    if features.hub.is_none() {
+        router = router
+            .route("/patches", get(installed))
+            .route("/patches/pending", get(pending))
+            .route("/patches/export", get(export))
+            .route("/patches/summary", get(summary))
+            .route("/snapshot", get(agent_snapshot));
+    } else {
+        router = router
+            .route("/agents", get(fleet::agents))
+            .route("/agents/{id}/snapshot", get(fleet::agent_detail))
+            .route("/fleet/summary", get(fleet::fleet_summary));
+    }
     if metrics_enabled {
         router = router.route("/metrics", get(metrics));
     }
-    if let Some(baseline) = features.baseline {
-        router = router.route(
-            "/patches/baseline",
-            get(compare_baseline).layer(Extension(std::sync::Arc::new(baseline))),
-        );
+    if let Some(baseline) = &features.baseline {
+        if features.hub.is_none() {
+            router = router.route(
+                "/patches/baseline",
+                get(compare_baseline).layer(Extension(std::sync::Arc::new(baseline.clone()))),
+            );
+        } else {
+            router = router
+                .route("/agents/{id}/baseline", get(fleet::agent_baseline))
+                .route("/fleet/baseline", get(fleet::fleet_baseline));
+        }
     }
+    router = router.layer(Extension(std::sync::Arc::new(features)));
     apply_policies(router, state, Duration::from_secs(timeout_secs))
 }
 
@@ -142,8 +159,15 @@ async fn record_request(State(state): State<ApiState>, request: Request, next: N
     response
 }
 
-async fn ready(State(state): State<ApiState>) -> Response {
-    if state.store.view().snapshot.is_ready() {
+async fn ready(
+    State(state): State<ApiState>,
+    Extension(features): Extension<std::sync::Arc<ApiFeatures>>,
+) -> Response {
+    let is_ready = features.hub.as_ref().map_or_else(
+        || state.store.view().snapshot.is_ready(),
+        |hub| hub.view().ready,
+    );
+    if is_ready {
         json_bytes(Bytes::from_static(b"{\"status\":\"ready\"}"))
     } else {
         (
@@ -293,20 +317,42 @@ async fn summary(State(state): State<ApiState>) -> Response {
     }).into_response()
 }
 
-async fn metrics(State(state): State<ApiState>) -> Response {
+async fn metrics(
+    State(state): State<ApiState>,
+    Extension(features): Extension<std::sync::Arc<ApiFeatures>>,
+) -> Response {
     let view = state.store.view();
+    let now = jiff::Timestamp::now();
+    let body = if let Some(hub) = &features.hub {
+        state
+            .metrics
+            .render_gauges(hub.view().gauges(now, hub.stale_after_secs))
+    } else {
+        state
+            .metrics
+            .render(&view.snapshot, state.store.stale_after_secs, now)
+    };
     (
         [(
             header::CONTENT_TYPE,
             "text/plain; version=0.0.4; charset=utf-8",
         )],
-        state.metrics.render(
-            &view.snapshot,
-            state.store.stale_after_secs,
-            jiff::Timestamp::now(),
-        ),
+        body,
     )
         .into_response()
+}
+
+async fn agent_snapshot(State(state): State<ApiState>) -> Response {
+    let view = state.store.view();
+    let now = jiff::Timestamp::now();
+    Json(crate::domain::agent::AgentSnapshot {
+        schema_version: 1,
+        observed_at: now,
+        stale_after_secs: state.store.stale_after_secs,
+        is_stale: view.snapshot.is_stale(now, state.store.stale_after_secs),
+        snapshot: std::sync::Arc::clone(&view.snapshot),
+    })
+    .into_response()
 }
 
 #[cfg(test)]
@@ -367,3 +413,4 @@ mod tests {
         assert!(rendered.contains("path=\"/health\",status=\"408\"} 1"));
     }
 }
+mod fleet;

@@ -12,3 +12,6 @@ done < /tmp/patchpulse-runtime-libraries
 cp -a "$(rustc --print sysroot)/share/doc/rust/." "$runtime_root/usr/share/doc/patchpulse/rust/"
 cp -L /usr/share/doc/libc6/copyright "$runtime_root/usr/share/doc/patchpulse/system/libc6-copyright"
 cp -L /usr/share/doc/libgcc-s1/copyright "$runtime_root/usr/share/doc/patchpulse/system/libgcc-s1-copyright"
+mkdir -p "$runtime_root/etc/ssl/certs"
+cp -L /etc/ssl/certs/ca-certificates.crt "$runtime_root/etc/ssl/certs/ca-certificates.crt"
+cp -L /usr/share/doc/ca-certificates/copyright "$runtime_root/usr/share/doc/patchpulse/system/ca-certificates-copyright"

@@ -71,3 +71,8 @@ source/transport failure or expiry, compliance is unknown even when retained
 data previously satisfied the baseline. Counts/lists remain observations from
 that same snapshot. Comparison uses exact KB membership; it does not infer
 supersedence, security/vulnerability coverage or patch installation.
+
+## Agent and hub protocol
+
+Agent `/snapshot` and the mode-specific fleet routes, schemas, budgets, retained
+failures and baseline semantics are specified in [fleet.md](fleet.md).

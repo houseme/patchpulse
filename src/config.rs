@@ -28,11 +28,132 @@ pub struct Cli {
 #[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default, deny_unknown_fields)]
 pub struct Config {
+    pub mode: Mode,
     pub server: ServerConfig,
     pub collector: CollectorConfig,
     pub cache: CacheConfig,
     pub observability: ObservabilityConfig,
     pub baseline: BaselineConfig,
+    pub hub: HubConfig,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Mode {
+    #[default]
+    Agent,
+    Hub,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct HubConfig {
+    pub interval_secs: u64,
+    pub request_timeout_secs: u64,
+    pub stale_after_secs: u64,
+    pub max_concurrency: usize,
+    pub max_response_bytes: usize,
+    pub max_total_snapshot_bytes: usize,
+    pub agents: Vec<AgentConfig>,
+}
+impl Default for HubConfig {
+    fn default() -> Self {
+        Self {
+            interval_secs: 60,
+            request_timeout_secs: 10,
+            stale_after_secs: 180,
+            max_concurrency: 4,
+            max_response_bytes: 8 * 1024 * 1024,
+            max_total_snapshot_bytes: 64 * 1024 * 1024,
+            agents: Vec::new(),
+        }
+    }
+}
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct AgentConfig {
+    pub id: String,
+    pub url: String,
+    pub bearer_token_env: Option<String>,
+}
+impl HubConfig {
+    pub fn validate(&self) -> anyhow::Result<()> {
+        for value in [
+            self.interval_secs,
+            self.request_timeout_secs,
+            self.stale_after_secs,
+        ] {
+            anyhow::ensure!(
+                (1..=31_536_000).contains(&value),
+                "hub durations must be between 1 and 31536000"
+            );
+        }
+        anyhow::ensure!(
+            (1..=8).contains(&self.max_concurrency),
+            "hub max_concurrency must be between 1 and 8"
+        );
+        anyhow::ensure!(
+            (1024..=64 * 1024 * 1024).contains(&self.max_response_bytes),
+            "hub max_response_bytes must be between 1 KiB and 64 MiB"
+        );
+        anyhow::ensure!(
+            self.max_total_snapshot_bytes >= self.max_response_bytes
+                && self.max_total_snapshot_bytes <= 512 * 1024 * 1024,
+            "hub total snapshot budget must cover one response and not exceed 512 MiB"
+        );
+        anyhow::ensure!(
+            self.agents.len() <= 256,
+            "hub supports at most 256 configured agents"
+        );
+        let mut ids = std::collections::BTreeSet::new();
+        for agent in &self.agents {
+            anyhow::ensure!(
+                !agent.id.is_empty()
+                    && agent.id.len() <= 64
+                    && agent
+                        .id
+                        .bytes()
+                        .all(|c| c.is_ascii_alphanumeric() || matches!(c, b'-' | b'_')),
+                "agent IDs must contain 1..64 ASCII letters, digits, hyphens or underscores"
+            );
+            anyhow::ensure!(ids.insert(&agent.id), "duplicate agent ID: {}", agent.id);
+            let endpoint = agent.endpoint()?;
+            anyhow::ensure!(
+                agent.bearer_token_env.is_none() || endpoint.scheme() == "https",
+                "agent {} requires HTTPS when a bearer credential is configured",
+                agent.id
+            );
+            if let Some(name) = &agent.bearer_token_env {
+                anyhow::ensure!(
+                    !name.is_empty()
+                        && name.len() <= 128
+                        && name.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_'),
+                    "invalid bearer environment variable name"
+                );
+            }
+        }
+        Ok(())
+    }
+}
+impl AgentConfig {
+    pub fn endpoint(&self) -> anyhow::Result<reqwest::Url> {
+        let mut url = reqwest::Url::parse(&self.url)
+            .map_err(|_| anyhow::anyhow!("invalid configured agent URL for {}", self.id))?;
+        anyhow::ensure!(
+            matches!(url.scheme(), "http" | "https")
+                && url.host_str().is_some()
+                && url.username().is_empty()
+                && url.password().is_none()
+                && url.query().is_none()
+                && url.fragment().is_none(),
+            "agent {} requires an HTTP(S) URL without credentials, query or fragment",
+            self.id
+        );
+        if !url.path().ends_with('/') {
+            url.set_path(&format!("{}/", url.path()));
+        }
+        url.join("snapshot").context("construct agent snapshot URL")
+    }
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -192,6 +313,11 @@ impl Config {
 
     pub fn validate(&self) -> anyhow::Result<()> {
         self.baseline.prepare()?;
+        self.hub.validate()?;
+        anyhow::ensure!(
+            self.mode != Mode::Hub || !self.hub.agents.is_empty(),
+            "hub mode requires at least one configured agent"
+        );
         for (name, value) in [
             ("request_timeout_secs", self.server.request_timeout_secs),
             ("interval_secs", self.collector.interval_secs),
@@ -206,11 +332,12 @@ impl Config {
             }
         }
         let c = &self.collector;
-        if !(c.enable_wmi_installed
-            || c.enable_wua_installed
-            || c.enable_wua_pending
-            || c.enable_powershell_installed
-            || c.enable_powershell_pending)
+        if self.mode == Mode::Agent
+            && !(c.enable_wmi_installed
+                || c.enable_wua_installed
+                || c.enable_wua_pending
+                || c.enable_powershell_installed
+                || c.enable_powershell_pending)
         {
             bail!("at least one collector must be enabled");
         }

@@ -66,6 +66,7 @@ async fn baseline_distinguishes_pending_compliance_and_stale_retention() {
         15,
         ApiFeatures {
             baseline: config.prepare().unwrap(),
+            ..Default::default()
         },
     );
     assert_eq!(response(&router, "GET").await.1["compliance"], "unknown");
