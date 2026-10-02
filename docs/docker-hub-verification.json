@@ -1,0 +1,16 @@
+{
+  "image": "patchpulse:0.1.0",
+  "image_id": "sha256:f2939dc7507d64da140dd16e29816f16a2839c714ab75bb54d9b847a306fc7b1",
+  "agent_ready": 503,
+  "hub_ready": 503,
+  "configured_agents": 1,
+  "available_agents": 1,
+  "total_installed": 0,
+  "total_pending": 0,
+  "is_stale": true,
+  "baseline": "unknown",
+  "non_root": true,
+  "read_only": true,
+  "agent_sigterm_exit_code": 0,
+  "hub_sigterm_exit_code": 0
+}

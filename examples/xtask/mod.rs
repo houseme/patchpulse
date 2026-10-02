@@ -1,5 +1,6 @@
 mod cache;
 mod http;
+mod hub_smoke;
 mod metadata;
 mod policy;
 mod smoke;
@@ -37,6 +38,13 @@ enum Task {
         #[arg(long, default_value = "target/docker-smoke.json")]
         report: PathBuf,
     },
+    /// Verify configured agent/hub communication in a temporary Docker network.
+    SmokeHubDocker {
+        #[arg(long, default_value = "patchpulse:0.1.0")]
+        image: String,
+        #[arg(long, default_value = "target/docker-hub-smoke.json")]
+        report: PathBuf,
+    },
 }
 
 pub(super) fn run() -> anyhow::Result<()> {
@@ -54,7 +62,12 @@ pub(super) fn run() -> anyhow::Result<()> {
             policy::run(&root, &metadata, write)?;
         }
         Task::PrepareDockerCache => cache::prepare(&root, &metadata::load(&root, None)?)?,
-        Task::SmokeDocker { image, report } => smoke::run(&image, &relative_to(&root, &report))?,
+        Task::SmokeDocker { image, report } => {
+            smoke::run(&root, &image, &relative_to(&root, &report))?
+        }
+        Task::SmokeHubDocker { image, report } => {
+            hub_smoke::run(&root, &image, &relative_to(&root, &report))?
+        }
     }
     Ok(())
 }

@@ -7,7 +7,11 @@ implementation paths, tests, deployment recipes and evidence. Audit date:
 
 ## Conclusion
 
-F1-F9 have implementation paths. This is **not full production acceptance**: real Windows collection, SCM/job behavior, MSVC linking, Windows containers, resource limits, and remote CI execution remain unverified. Existing implemented flags refer to code presence; acceptance status below refers to actual evidence.
+F1-F9 and the approved v0.2-v0.5 extensions have implementation paths. This is
+**not full production acceptance**: real Windows collection, SCM/job behavior,
+MSVC linking, Windows containers, resource limits, deployed multi-host and OTLP
+collector operation, and remote CI execution remain unverified. Implemented
+flags below refer to code and local behavior; acceptance refers to actual evidence.
 
 This audit adds direct checks for simultaneous backend execution, non-Windows behavior of all five modes, read-only handlers, process output overflow, and active process cancellation. Backend success timestamps are now captured in the blocking worker before asynchronous result/logging delays.
 
@@ -73,9 +77,37 @@ A step can have implemented code and still require platform acceptance. Step num
 | 08.2 | Configured; remote execution pending | Linux/macOS/Windows workflow and opt-in live Windows collector tests. No remote CI success claimed. |
 | 08.3 | Verified Linux ARM64 | Actual Docker build: non-root scratch runtime, notices, built-in probe, explicit bind. |
 | 08.4 | Recipe provided; build/runtime pending | Dockerfile.windows requires Windows daemon and staged MSVC executable; no host-inventory guarantee. |
-| 08.5 | Verified Linux ARM64 | cargo xtask smoke-docker validates seven endpoints, expected 503 readiness, hardening and SIGTERM; current migration evidence is in rust-tooling.md. |
+| 08.5 | Verified Linux ARM64 | cargo xtask smoke-docker validates original HTTP endpoints, CSV, agent snapshot, 503 readiness, hardening and SIGTERM; smoke-hub-docker verifies both roles, machine identity, stale/unknown baseline and cleanup. |
 | 08.6 | Verified | cargo xtask dependency-policy inventory and upstream/Rust/system-library notices; normalized output matches the previous generator. |
 | 08.7 | Verified | requirements-audit.md, review-refactor.md and validation.md distinguish code, host checks and live gates. |
+
+## Every approved extension step
+
+Step numbers follow the English specifications in docs/tasks/09-12.
+
+| Task/step | Status | Evidence and remaining limit |
+| --- | --- | --- |
+| 09.1 | Verified | Agent GET/HEAD CSV route, strict format/status/since queries and JSON errors; export_contract.rs. |
+| 09.2 | Verified | UTF-8 RFC 4180 rows and spans prepared in immutable publication; cached filtered rows retain stable order/schema. |
+| 09.3 | Verified | Potential spreadsheet formulas gain an apostrophe; quotes, CRLF, Unicode and multiline text round-trip. |
+| 09.4 | Verified | Content type, attachment header and structured invalid-query/write rejection through the real router. |
+| 09.5 | Verified | Empty, pending, date-filtered, retained-after-failure, HEAD and unsupported-host CSV contracts. |
+| 10.1 | Verified | Explicit agent/hub mode, unique static IDs/URLs, bounded durations, bytes and concurrency; hub_contract.rs. |
+| 10.2 | Verified | Versioned coherent AgentSnapshot endpoint publishes backend diagnostics and evaluated freshness. |
+| 10.3 | Verified locally | Pooled HTTP(S) client, disabled redirects/proxies, bounded requests, original-data retention and untrusted TLS rejection; remote deployment pending. |
+| 10.4 | Verified | One immutable machine-keyed publication, agents/detail/fleet routes and no cross-host KB deduplication. |
+| 10.5 | Verified locally | First real source success establishes historical readiness, stale nodes remain visible, and shutdown cancels an active cycle. |
+| 10.6 | Verified locally | Two real loopback agents, full Hub runtime, partial failure/recovery, size budgets, cancellation and Linux two-container image smoke. Live multi-host operations remain external. |
+| 11.1 | Verified | Disabled default and strict OTLP endpoint, identity, ratio, timeout and queue validation. |
+| 11.2 | Verified | Official OpenTelemetry SDK/OTLP/tracing integration preserves JSON/pretty logs and Prometheus independently. |
+| 11.3 | Verified locally | Bounded HTTP/collector/hub spans, W3C incoming parent and outbound propagation; OTLP payload excludes sensitive inventory/query text. |
+| 11.4 | Verified locally | SDK worker, 1 MiB batches, one bounded retry, five-second flush; export failure leaves HTTP/readiness intact and emits sanitized errors. |
+| 11.5 | Verified locally | Real OTLP/HTTP JSON reception, identity/context/linkage, disabled mode and debug-log response-body privacy. External collector acceptance remains pending. |
+| 12.1 | Verified | Named exact-KB baseline normalization, deduplication and enabled-empty rejection. |
+| 12.2 | Verified | Immutable agent comparison reports installed/missing/pending lists and counts. |
+| 12.3 | Verified | Initial, failed and expired input is unknown; fresh missing requirements are non_compliant. No supersedence inferred. |
+| 12.4 | Verified | Per-agent and fleet conclusions preserve identity and conclusive fresh non-compliance alongside unknown peers. |
+| 12.5 | Verified | Real-router compliant/non-compliant/unknown, disabled/write, partial-failure and actual two-agent contracts. |
 
 ## Acceptance criteria review
 
@@ -89,6 +121,10 @@ A step can have implemented code and still require platform acceptance. Step num
 | 06 | Histogram/label/failure/disabled-route checks met; live resource measurements and SCM log permissions pending. |
 | 07 | Target compilation met; actual install/start/stop/reboot/recovery not met. |
 | 08 | Local Linux image and explicit evidence records met; Windows image and remote CI are not completed. |
+| 09 | CSV contracts and cached export path verified; no live Windows CSV data claim. |
+| 10 | Hub code, real HTTP/TLS contracts and Linux two-role image verified; deployed multi-host and Windows acceptance pending. |
+| 11 | Real local OTLP delivery, privacy and failure isolation verified; external collector and Windows acceptance pending. |
+| 12 | Agent/fleet comparison and three-valued compliance verified; real Windows inventory comparison pending. |
 
 ## Historical proposal sections and intentional corrections
 
@@ -121,7 +157,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | --- | --- |
 | v0.2 CSV export | Implemented; prepared UTF-8 CSV, filters, formula escaping, failure retention and actual router contracts pass (Task 09). |
 | v0.3 agent/hub aggregation | Implemented bounded HTTP(S) configured-agent polling, per-host retention/readiness/metrics and actual HTTP/TLS-rejection contracts; Task 10 supersedes the earlier non-goal. |
-| v0.4 OpenTelemetry export | User-approved current delivery; Task 11 implementation in progress. |
+| v0.4 OpenTelemetry export | Implemented opt-in OTLP/HTTP JSON traces with bounded SDK worker, W3C propagation, sanitized failures and independent logs/metrics; a local collector receives real batches. External collector deployment remains pending. |
 | v0.5 compliance baseline comparison | Agent and fleet exact-KB comparison implemented; missing and source/transport-stale observations yield unknown per-agent compliance. |
 | Patch download/install and Web UI | Explicit non-goals; intentionally absent. |
 
@@ -137,18 +173,20 @@ A step can have implemented code and still require platform acceptance. Step num
 
 The audit is based on current source, host regression checks, Windows-target compilation and actual local Linux Docker behavior. Existing advisory provenance remains the verified snapshot recorded in validation.md; offline checks do not establish current online database freshness. Each rewritten functional commit receives a cumulative Changelog entry and an archived-tree build check. The old commit remains recoverable through houseme/backup-65866b7. Local rewriting does not rewrite origin/main.
 
-Agent/Hub completion checkpoint: 66 host tests pass: 23 unit/process/preflight,
+Completion checkpoint: 70 macOS ARM64 host tests pass: 24 library tests,
 6 API, 3 baseline, 2 CSV, 8 Hub, 2 collector, 2 configuration, 1 logging,
-8 snapshot pipeline and 11 Rust tool tests. Strict host and Windows-target
-Clippy, upstream license notices and offline cargo-deny pass. The earlier Docker
-evidence in rust-tooling.md predates Hub packaging; this checkpoint does not
-claim a rebuilt Hub image or deployed multi-host acceptance. Task 11 trace
-validation will update this checkpoint when executed.
+3 OTLP, 8 snapshot pipeline and 11 Rust tool tests. The first full test run
+was blocked by the sandbox's loopback bind restriction; the same suite passed
+with local loopback access. Host Clippy, upstream license notices, offline
+cargo-deny and cargo-audit against official RustSec commit
+`117edb3bed98e9be112f277b7615eea3252e7c43` pass. Windows target and
+final SDK-inclusive image checks are recorded in completion-validation.md.
 
-Rebuilt Linux image patchpulse:0.1.0 (arm64) passed Rust structured-log,
-endpoint/hardening/healthcheck and SIGTERM verification after Hub/TLS packaging.
-It includes CA data and upstream notices. Image ID:
-`sha256:ef942a4d9e459e42652fe1160bd0c1e27fdd436a32008e83ad8c9e1b5d8ad22c`.
+Final Linux image patchpulse:0.1.0 (arm64) passed Rust structured-log,
+Agent endpoint/CSV/healthcheck and two-role Hub/TLS packaging verification.
+It includes CA data and upstream notices; both roles passed hardened SIGTERM
+checks. Image ID:
+`sha256:f2939dc7507d64da140dd16e29816f16a2839c714ab75bb54d9b847a306fc7b1`.
 
 ## Rewritten functional history
 
@@ -164,3 +202,19 @@ The old aggregate commit is recoverable on `houseme/backup-65866b7`. The new loc
 | 6 | `a59cdf994c3d` | feat(service): add foreground and Windows SCM lifecycle |
 | 7 | `c71f9fab8f59` | ci: package hardened Docker images and validation workflows |
 | 8 | `773a0d902722` | English agent guide, comprehensive requirement audit and cumulative Changelog |
+
+## Subsequent functional commits
+
+The original aggregate commit remains recoverable on the backup reference.
+These later commits add independently reviewable capabilities. The separate
+validation commit records the final image and exact branch status.
+
+| Sequence | Commit | Functional boundary |
+| --- | --- | --- |
+| 9 | `f1f43c3` | refactor(tooling): replace Python helpers with Rust xtask |
+| 10 | `8409b8c` | feat(runtime): privilege preflight and complete HTTP timeout contracts |
+| 11 | `aa7b3c1` | feat(export): prepared CSV patch inventories |
+| 12 | `950043d` | feat(baseline): compare configured KB requirements |
+| 13 | `efe520b` | feat(hub): bounded machine-scoped Agent/Hub aggregation |
+| 14 | `acac033` | fix(baseline): preserve conclusive fleet non-compliance |
+| 15 | `681710a` | feat(telemetry): bounded OTLP/HTTP trace export |

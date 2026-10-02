@@ -70,5 +70,6 @@ remain the external acceptance gates documented in the requirements audit.
 
 The offline Linux ARM64 image was rebuilt with the public locked crate cache and
 the Rust smoke tool verified its hardened agent mode, health probe and shutdown.
-The report in [docker-verification.json](docker-verification.json) records image
-`sha256:ef942a4d9e459e42652fe1160bd0c1e27fdd436a32008e83ad8c9e1b5d8ad22c`.
+The [Agent report](docker-verification.json) and [Hub
+report](docker-hub-verification.json) record final SDK-inclusive image
+`sha256:f2939dc7507d64da140dd16e29816f16a2839c714ab75bb54d9b847a306fc7b1`.

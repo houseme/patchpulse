@@ -1,10 +1,13 @@
 {
   "image": "patchpulse:0.1.0",
-  "image_id": "sha256:ef942a4d9e459e42652fe1160bd0c1e27fdd436a32008e83ad8c9e1b5d8ad22c",
+  "image_id": "sha256:f2939dc7507d64da140dd16e29816f16a2839c714ab75bb54d9b847a306fc7b1",
   "architecture": "arm64",
-  "size_bytes": 5053927,
+  "size_bytes": 5397393,
   "non_root": true,
   "read_only": true,
+  "project_license_checked": true,
+  "upstream_notices_checked": true,
+  "system_ca_checked": true,
   "healthcheck": "passed",
   "sigterm_exit_code": 0,
   "endpoints": {
@@ -12,12 +15,17 @@
     "/metrics": 200,
     "/missing": 404,
     "/patches": 200,
+    "/patches/baseline": 404,
+    "/patches/export": 200,
     "/patches/pending": 200,
     "/patches/summary": 200,
     "/patches?since=invalid": 400,
     "/ready": 503,
+    "/snapshot": 200,
     "/version": 200,
     "HEAD /health": 200,
-    "POST /patches": 405
+    "HEAD /snapshot": 200,
+    "POST /patches": 405,
+    "POST /patches/export": 405
   }
 }

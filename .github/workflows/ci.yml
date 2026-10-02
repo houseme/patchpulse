@@ -56,3 +56,5 @@ jobs:
       - run: docker build -t patchpulse:ci .
       - name: Verify unsupported platform remains observable
         run: cargo xtask smoke-docker --image patchpulse:ci
+      - name: Verify configured Agent and Hub Docker modes
+        run: cargo xtask smoke-hub-docker --image patchpulse:ci

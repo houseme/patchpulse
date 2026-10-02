@@ -16,6 +16,7 @@ tool or its HTTP client features.
 | `cargo xtask dependency-policy --metadata target/metadata.json` | Check previously captured Cargo metadata instead of spawning Cargo. |
 | `cargo xtask prepare-docker-cache` | Replace target/docker-cargo-cache with only locked public archives/indexes. |
 | `cargo xtask smoke-docker --image patchpulse:0.1.0` | Verify a real Linux image and write target/docker-smoke.json. |
+| `cargo xtask smoke-hub-docker --image patchpulse:0.1.0` | Verify both roles on a temporary Docker network and write target/docker-hub-smoke.json. |
 
 Optional global `--root PATH` selects the repository root. Relative metadata and
 report paths resolve against that root. `smoke-docker --report PATH` changes the
@@ -29,7 +30,9 @@ license files and any project license other than Apache-2.0. Preserve upstream
 SPDX expressions and license text. Sort by crate name/version and filename;
 normalize line endings to LF, as the previous generator did. If a package archive
 omits notices, use its exact-version `licenses/upstream` fallback. Missing or
-stale documents cause a nonzero exit; regeneration is explicit.
+stale documents cause a nonzero exit; regeneration is explicit. Fallbacks include
+upstream NOTICE/COPYING files when available. Each separately sourced fallback
+records its pinned source and blob in provenance.json.
 
 ## Offline Docker cache
 
@@ -56,14 +59,26 @@ build. Only generated target cache files are replaced.
 Start a uniquely named temporary container with loopback port publication,
 read-only root, all capabilities dropped and no-new-privileges. Use Hyper HTTP/1
 with a three-second per-request timeout and a one-MiB response limit. Validate
-all seven endpoints, expected Linux readiness 503, zero fabricated inventory,
+all original endpoints plus CSV export, the versioned agent snapshot, expected
+Linux readiness 503, zero fabricated inventory,
 Prometheus type/staleness, invalid-query 400, missing-route 404, POST 405 and HEAD
 200. Check the binary health probe, UID/GID 65532, structured timestamped logs,
 runtime hardening and graceful SIGTERM exit 0. Remove the temporary container
 on success or failure; write a report only after verification and cleanup pass.
+Copy the project's LICENSE and THIRD_PARTY_NOTICES.md out of the actual running
+image and compare them byte-for-byte with the workspace. Check the Apache-2.0
+image label and a nonempty system CA bundle. Temporary inspection files are
+removed after each check.
 
 Docker subprocess waits run on blocking workers. The current-thread runtime
 drives HTTP connections; connection tasks are aborted when each probe completes.
+The Hub smoke command starts the same image twice on a dedicated temporary Docker
+network, mounts an ephemeral configuration, and verifies identity, receipt of a
+versioned agent snapshot, zero Linux patch counts, stale/unknown baseline,
+read-only methods, structured logs, non-root/read-only settings and SIGTERM exit
+zero for both containers. It removes both containers, the network and its
+temporary configuration even when a check fails. The report is written only
+after successful verification and cleanup.
 Production collectors, Windows platform behavior and deployment contracts are
 unchanged. Linux image checks do not validate Windows collection or SCM.
 
@@ -75,7 +90,8 @@ after normalizing generator command names, both generated documents matched
 byte-for-byte. The helpers were then removed. Historical validation and baseline
 hash records remain unchanged as provenance rather than executable instructions.
 
-Checked on 2026-10-02 (Asia/Shanghai):
+Original Python-to-Rust migration checkpoint, checked on 2026-10-02
+(Asia/Shanghai), before Tasks 09-12:
 
 | Gate | Actual result |
 | --- | --- |
@@ -89,9 +105,10 @@ Checked on 2026-10-02 (Asia/Shanghai):
 | `cargo audit --db target/advisory-snapshot --no-fetch` | Passed for 126 dependencies using the previously recorded 1,278-advisory snapshot; no current online freshness claim. |
 | Docker release build and `cargo xtask smoke-docker` | Passed on Linux ARM64, including temporary-container removal. |
 
-The rebuilt `patchpulse:0.1.0` image has Docker ID
+The image at that checkpoint had Docker ID
 `sha256:4d6d7e723021c1afc22d7909b02f508fa27c042df381937de114d0aebf8bc9d8`
 and reported size 3,523,955 bytes. Its application executable layer was unchanged
 by the development-tool migration; updated upstream notices are included.
-Machine-readable results are in [docker-verification.json](docker-verification.json).
-Live Windows acceptance and remote CI remain pending as documented in the audit.
+The current image and machine-readable Agent/Hub reports are in
+[completion-validation.md](completion-validation.md). Live Windows acceptance
+and remote CI remain pending as documented in the audit.

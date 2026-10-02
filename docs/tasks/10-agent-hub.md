@@ -31,4 +31,6 @@ The agent remains usable independently. Live Windows/remote acceptance is separa
 src/hub.rs, src/domain/agent.rs, src/net.rs, the mode-specific API and
 config/hub.toml implement the poll/publish/query lifecycle. See fleet.md and
 tests/hub_contract.rs for real HTTP, retained failures, budgets, bounded
-concurrency, shutdown and untrusted HTTPS certificate rejection.
+concurrency, shutdown and untrusted HTTPS certificate rejection. The Rust
+smoke-hub-docker command also verifies the actual two-role image and cleans its
+temporary Docker network and containers.
