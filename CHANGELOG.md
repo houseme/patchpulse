@@ -42,6 +42,7 @@ Unreleased entries do not announce a published release.
 
 ### End-to-end delivery checks
 
+- Preserve 18 reviewed functional commit trees while replaying them on the repository's rebase-only main history.
 - Publish an English, version-by-version Windows Server manual acceptance guide with executable checks and evidence fields.
 - Confirm a successful five-job remote CI run on Linux, macOS and Windows, including MSVC release linking, dependency policy and Docker role smoke checks.
 - Add a native Windows CI release build that links the x86_64-pc-windows-msvc executable.

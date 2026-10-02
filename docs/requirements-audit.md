@@ -191,18 +191,23 @@ checks. Image ID:
 
 ## Rewritten functional history
 
-The old aggregate commit is recoverable on `houseme/backup-65866b7`. The rewritten branch starts from its parent; remote `main` remains unchanged. A separate `houseme/functional-commits-ci` branch runs GitHub Actions. Every listed predecessor was checked from its exact staged tree.
+The old aggregate commit remains reachable on `houseme/backup-65866b7`. For a
+repository that allows rebase/squash but not merge commits, the 18 reviewed
+functional trees were replayed in order on top of that aggregate commit. Each
+replayed tree matches its original reviewed counterpart exactly; the first
+commit folds removal of the superseded aggregate into the licensed foundation.
+GitHub Actions runs on the PR branch before integration.
 
 | Sequence | Commit | Functional boundary |
 | --- | --- | --- |
-| 1 | `31f9b86c7711` | build: establish licensed Rust configuration and patch domain |
-| 2 | `50662cb1d45d` | feat(observability): add structured logs and bounded Prometheus metrics |
-| 3 | `b8cd67008fe8` | feat(collector): collect Windows updates with bounded backend execution |
-| 4 | `35944ea0a3d6` | feat(snapshot): publish prepared inventories with failure retention |
-| 5 | `99a9f6c407f2` | feat(api): expose cached patch queries and stable HTTP contracts |
-| 6 | `a59cdf994c3d` | feat(service): add foreground and Windows SCM lifecycle |
-| 7 | `c71f9fab8f59` | ci: package hardened Docker images and validation workflows |
-| 8 | `773a0d902722` | English agent guide, comprehensive requirement audit and cumulative Changelog |
+| 1 | `19d3fa32c5` | build: replace aggregate with licensed Rust foundation |
+| 2 | `3efb47eb09` | feat(observability): add structured logs and bounded Prometheus metrics |
+| 3 | `631c7f3d65` | feat(collector): collect Windows updates with bounded backend execution |
+| 4 | `8a7ba97872` | feat(snapshot): publish prepared inventories with failure retention |
+| 5 | `653c809e27` | feat(api): expose cached patch queries and stable HTTP contracts |
+| 6 | `e40e181cb0` | feat(service): add foreground and Windows SCM lifecycle |
+| 7 | `7aef968cda` | ci: package hardened Docker images and validation workflows |
+| 8 | `ca091ff8a3` | English agent guide, comprehensive requirement audit and cumulative Changelog |
 
 ## Subsequent functional commits
 
@@ -212,12 +217,13 @@ validation commit records the final image and exact branch status.
 
 | Sequence | Commit | Functional boundary |
 | --- | --- | --- |
-| 9 | `f1f43c3` | refactor(tooling): replace Python helpers with Rust xtask |
-| 10 | `8409b8c` | feat(runtime): privilege preflight and complete HTTP timeout contracts |
-| 11 | `aa7b3c1` | feat(export): prepared CSV patch inventories |
-| 12 | `950043d` | feat(baseline): compare configured KB requirements |
-| 13 | `efe520b` | feat(hub): bounded machine-scoped Agent/Hub aggregation |
-| 14 | `acac033` | fix(baseline): preserve conclusive fleet non-compliance |
-| 15 | `681710a` | feat(telemetry): bounded OTLP/HTTP trace export |
-| 16 | `057da45` | ci(validation): final local Agent/Hub image and dependency evidence |
-| 17 | `8a6d2da` | ci(windows): MSVC release executable link check |
+| 9 | `2b8ebc522c` | refactor(tooling): replace Python helpers with Rust xtask |
+| 10 | `dc9c204ee3` | feat(runtime): privilege preflight and complete HTTP timeout contracts |
+| 11 | `e96c816fcf` | feat(export): prepared CSV patch inventories |
+| 12 | `91bb4d9272` | feat(baseline): compare configured KB requirements |
+| 13 | `7dca788c09` | feat(hub): bounded machine-scoped Agent/Hub aggregation |
+| 14 | `dfccf33340` | fix(baseline): preserve conclusive fleet non-compliance |
+| 15 | `9e9ae8c001` | feat(telemetry): bounded OTLP/HTTP trace export |
+| 16 | `ec01d3d298` | ci(validation): final local Agent/Hub image and dependency evidence |
+| 17 | `c5a6948810` | ci(windows): MSVC release executable link check |
+| 18 | `2ca4efccd5` | docs(validation): Windows Server acceptance guide and remote CI evidence |
