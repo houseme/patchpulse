@@ -8,9 +8,10 @@ implementation paths, tests, deployment recipes and evidence. Audit date:
 ## Conclusion
 
 F1-F9 and the approved v0.2-v0.5 extensions have implementation paths. This is
-**not full production acceptance**: real Windows collection, SCM/job behavior,
-MSVC linking, Windows containers, resource limits, deployed multi-host and OTLP
-collector operation, and remote CI execution remain unverified. Implemented
+**not full production acceptance**: real Windows Server collection, SCM/job behavior,
+Windows containers, resource limits, deployed multi-host and OTLP collector
+operation remain unverified. The Windows MSVC release link and remote CI passed
+on GitHub-hosted runners. Implemented
 flags below refer to code and local behavior; acceptance refers to actual evidence.
 
 This audit adds direct checks for simultaneous backend execution, non-Windows behavior of all five modes, read-only handlers, process output overflow, and active process cancellation. Backend success timestamps are now captured in the blocking worker before asynchronous result/logging delays.
@@ -74,7 +75,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | 07.5 | Documented | LocalSystem/ACL/log sink/firewall/WSUS/native deployment limitations in deployment.md and AGENT.md. |
 | 07.6 | Implemented; cross-platform contract verified | Read-only token/elevation diagnostics run on a startup blocking worker; unknown/restricted privileges warn without disabling HTTP. Real Windows token behavior remains a live gate. |
 | 08.1 | Verified locally | Fmt, Clippy, tests, rustdoc, licenses/bans, cached advisory checks. Offline provenance recorded. |
-| 08.2 | Configured; remote execution pending | Linux/macOS/Windows workflow, Windows MSVC release linking and opt-in live Windows collector tests. No remote CI success claimed. |
+| 08.2 | Verified on GitHub-hosted runners; live collectors pending | [Run 37002534605](https://github.com/houseme/patchpulse/actions/runs/37002534605) passed Linux/macOS/Windows, dependencies and Docker jobs, including the MSVC release link. Opt-in live Windows collector tests were not run. |
 | 08.3 | Verified Linux ARM64 | Actual Docker build: non-root scratch runtime, notices, built-in probe, explicit bind. |
 | 08.4 | Recipe provided; build/runtime pending | Dockerfile.windows requires Windows daemon and staged MSVC executable; no host-inventory guarantee. |
 | 08.5 | Verified Linux ARM64 | cargo xtask smoke-docker validates original HTTP endpoints, CSV, agent snapshot, 503 readiness, hardening and SIGTERM; smoke-hub-docker verifies both roles, machine identity, stale/unknown baseline and cleanup. |
@@ -120,7 +121,7 @@ Step numbers follow the English specifications in docs/tasks/09-12.
 | 05 | Endpoint/filter/error/readiness/metric contracts met, including cancellation/JSON 408/exact timeout counters and all-route HEAD behavior. |
 | 06 | Histogram/label/failure/disabled-route checks met; live resource measurements and SCM log permissions pending. |
 | 07 | Target compilation met; actual install/start/stop/reboot/recovery not met. |
-| 08 | Local Linux image and explicit evidence records met; Windows image and remote CI are not completed. |
+| 08 | Local Linux image and remote CI passed; Windows image and target-server runtime acceptance remain pending. |
 | 09 | CSV contracts and cached export path verified; no live Windows CSV data claim. |
 | 10 | Hub code, real HTTP/TLS contracts and Linux two-role image verified; deployed multi-host and Windows acceptance pending. |
 | 11 | Real local OTLP delivery, privacy and failure isolation verified; external collector and Windows acceptance pending. |
@@ -167,7 +168,7 @@ Step numbers follow the English specifications in docs/tasks/09-12.
 2. Build/link MSVC, install/start/stop/reboot the service, verify recovery and writable log destination/ACLs.
 3. Build/run the Windows container on a compatible daemon and record WMI/WUA availability; validate the Linux image separately.
 4. Measure Windows RSS/idle and collection CPU/latency with realistic inventory. Record network throughput separately from in-process CPU benchmarks.
-5. Execute remote CI and record results; code/config presence is not a successful run.
+5. Complete the [manual Windows Server guide](windows-server-manual-validation.md) on each target release. GitHub-hosted CI is recorded in the validation report and cannot replace these checks.
 
 ## Validation provenance
 
@@ -190,7 +191,7 @@ checks. Image ID:
 
 ## Rewritten functional history
 
-The old aggregate commit is recoverable on `houseme/backup-65866b7`. The new local branch starts from its parent; the remote tracking branch remains unchanged. Every listed predecessor was checked from its exact staged tree.
+The old aggregate commit is recoverable on `houseme/backup-65866b7`. The rewritten branch starts from its parent; remote `main` remains unchanged. A separate `houseme/functional-commits-ci` branch runs GitHub Actions. Every listed predecessor was checked from its exact staged tree.
 
 | Sequence | Commit | Functional boundary |
 | --- | --- | --- |
@@ -218,3 +219,5 @@ validation commit records the final image and exact branch status.
 | 13 | `efe520b` | feat(hub): bounded machine-scoped Agent/Hub aggregation |
 | 14 | `acac033` | fix(baseline): preserve conclusive fleet non-compliance |
 | 15 | `681710a` | feat(telemetry): bounded OTLP/HTTP trace export |
+| 16 | `057da45` | ci(validation): final local Agent/Hub image and dependency evidence |
+| 17 | `8a6d2da` | ci(windows): MSVC release executable link check |

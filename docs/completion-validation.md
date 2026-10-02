@@ -20,6 +20,8 @@ evidence is in [requirements-audit.md](requirements-audit.md).
 | `cargo audit --db target/advisory-snapshot --no-fetch` | Passed: 1,280 advisories, 244 locked dependencies. |
 | `cargo run --locked -- --check-config --config config/hub.toml` | Passed. |
 | Offline Docker build and both Rust smoke commands | Passed on Linux ARM64; reports linked below. |
+| [GitHub Actions run 37002534605](https://github.com/houseme/patchpulse/actions/runs/37002534605) on `8a6d2da25dd6c4edbb97e171d6455a84d3915b1e` | Passed on 2026-10-02: Linux, macOS, Windows, dependencies and Docker jobs. The Windows job linked the x86_64-pc-windows-msvc release executable. Ignored live collector tests were not run. |
+| Windows Server manual guide | All nine PowerShell command blocks parsed with the PowerShell parser; the commands await execution on Server 2016/2019/2022. |
 
 The first full test command ran under a sandbox that denied local TCP bind and
 therefore failed six Hub fixtures with `PermissionDenied`. The identical suite
@@ -70,17 +72,18 @@ remained after inspection.
 ## External acceptance still required
 
 Real Windows Server 2016/2019/2022 WMI/WUA/PowerShell data, private job cleanup,
-MSVC linking, SCM install/start/stop/restart/reboot and account permissions need
+SCM install/start/stop/restart/reboot and account permissions need
 execution on suitable Windows hosts. The Windows container recipe also needs a
 compatible daemon; a Linux container cannot read host Windows patches. Validate
 the multi-host deployment and external OTLP collector under its actual TLS and
 credential policy. Windows RSS, idle/collection CPU, collection latency and
-network throughput goals remain unmeasured. Remote GitHub CI has not run in
-this local delivery.
+network throughput goals remain unmeasured. Follow the
+[Windows Server manual acceptance guide](windows-server-manual-validation.md)
+separately on each target release.
 
-The Windows CI matrix now includes an x86_64-pc-windows-msvc release executable
-link check. This is workflow configuration, not evidence of a completed remote
-build or native Windows Server behavior.
+The Windows CI release executable link check passed on a GitHub-hosted
+`windows-latest` runner. It does not prove Windows Server 2016/2019/2022 runtime
+behavior, service control or host patch visibility.
 
 The earlier [validation record](validation.md), [refactor evidence](review-refactor.md)
 and [tool migration evidence](rust-tooling.md) retain their original historical

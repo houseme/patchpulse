@@ -109,6 +109,6 @@ The image at that checkpoint had Docker ID
 `sha256:4d6d7e723021c1afc22d7909b02f508fa27c042df381937de114d0aebf8bc9d8`
 and reported size 3,523,955 bytes. Its application executable layer was unchanged
 by the development-tool migration; updated upstream notices are included.
-The current image and machine-readable Agent/Hub reports are in
-[completion-validation.md](completion-validation.md). Live Windows acceptance
-and remote CI remain pending as documented in the audit.
+The current image, machine-readable Agent/Hub reports and subsequent remote CI
+result are in [completion-validation.md](completion-validation.md). Live Windows
+Server acceptance remains pending as documented in the audit.

@@ -22,6 +22,7 @@ and [the complete API contract](docs/api.md).
 
 - [Requirements and completion audit](docs/requirements-audit.md)
 - [English implementation tasks](docs/tasks/README.md)
+- [Windows Server manual acceptance guide](docs/windows-server-manual-validation.md)
 - [Changelog](CHANGELOG.md)
 - [Architecture](docs/architecture.md) and [API contract](docs/api.md)
 - [Windows service and Docker deployment](docs/deployment.md)
