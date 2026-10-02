@@ -27,12 +27,54 @@ pub struct PublishedSnapshot {
     pub snapshot: Arc<PatchSnapshot>,
     pub installed_json: Bytes,
     pub pending_json: Bytes,
+    installed_csv: Bytes,
+    pending_csv: Bytes,
+    installed_csv_spans: JsonSpans,
+    pending_csv_spans: JsonSpans,
     pub coverage: BTreeMap<String, bool>,
     latest_index: Option<usize>,
     installed_spans: JsonSpans,
     pending_spans: JsonSpans,
 }
 impl PublishedSnapshot {
+    pub fn list_csv(&self, pending: bool, since: Option<Timestamp>) -> Bytes {
+        let (records, csv, spans) = if pending {
+            (
+                &self.snapshot.pending,
+                &self.pending_csv,
+                &self.pending_csv_spans,
+            )
+        } else {
+            (
+                &self.snapshot.installed,
+                &self.installed_csv,
+                &self.installed_csv_spans,
+            )
+        };
+        let Some(since) = since else {
+            return csv.clone();
+        };
+        let selected: Vec<_> = records
+            .iter()
+            .zip(spans.iter())
+            .filter(|(record, _)| record.installed_on.is_some_and(|instant| instant >= since))
+            .map(|(_, span)| span)
+            .collect();
+        if selected.len() == records.len() {
+            return csv.clone();
+        }
+        if selected.is_empty() {
+            return Bytes::from_static(crate::export::HEADER);
+        }
+        let mut bytes = Vec::with_capacity(
+            crate::export::HEADER.len() + selected.iter().map(|span| span.len()).sum::<usize>(),
+        );
+        bytes.extend_from_slice(crate::export::HEADER);
+        for span in selected {
+            bytes.extend_from_slice(&csv[span.clone()]);
+        }
+        Bytes::from(bytes)
+    }
     pub fn latest_installed(&self) -> Option<&PatchRecord> {
         self.latest_index
             .and_then(|index| self.snapshot.installed.get(index))
@@ -86,6 +128,8 @@ impl PublishedSnapshot {
 pub enum PublishError {
     #[error("snapshot encoding failed: {0}")]
     Encoding(#[from] serde_json::Error),
+    #[error("snapshot CSV encoding failed: {0}")]
+    Csv(#[from] csv::Error),
     #[error("snapshot worker failed: {0}")]
     Worker(#[from] tokio::task::JoinError),
 }
@@ -121,6 +165,10 @@ impl SnapshotStore {
             snapshot: Arc::new(snapshot),
             installed_json: Bytes::from_static(EMPTY_LIST_JSON),
             pending_json: Bytes::from_static(EMPTY_LIST_JSON),
+            installed_csv: Bytes::from_static(crate::export::HEADER),
+            pending_csv: Bytes::from_static(crate::export::HEADER),
+            installed_csv_spans: Arc::default(),
+            pending_csv_spans: Arc::default(),
             coverage,
             latest_index: None,
             installed_spans: Arc::default(),
@@ -164,6 +212,7 @@ fn assemble(
     outcomes: Vec<BackendOutcome>,
     now: Timestamp,
 ) -> Result<(BackendData, PublishedSnapshot), PublishError> {
+    let mut next = (*previous).clone();
     let mut snapshot = (*previous.snapshot).clone();
     let mut successes = 0;
     let mut errors = Vec::new();
@@ -200,9 +249,7 @@ fn assemble(
     } else {
         Some(errors.join("; "))
     };
-    let (installed_json, installed_spans, pending_json, pending_spans, latest_index) = if successes
-        > 0
-    {
+    if successes > 0 {
         snapshot.installed = Arc::new(dedupe(data.values().flat_map(|batch| {
             batch
                 .records
@@ -223,42 +270,21 @@ fn assemble(
             batch.reboot_required == Some(true)
                 || batch.records.iter().any(|record| record.reboot_required)
         });
-        let (installed_json, installed_spans) = encode(&snapshot.installed)?;
-        let (pending_json, pending_spans) = encode(&snapshot.pending)?;
-        (
-            installed_json,
-            installed_spans,
-            pending_json,
-            pending_spans,
-            snapshot.latest_installed_index(),
-        )
-    } else {
-        // Failure-only cycles update diagnostics while sharing the prior inventory and JSON.
-        (
-            previous.installed_json.clone(),
-            Arc::clone(&previous.installed_spans),
-            previous.pending_json.clone(),
-            Arc::clone(&previous.pending_spans),
-            previous.latest_index,
-        )
-    };
-    let coverage = snapshot
+        (next.installed_json, next.installed_spans) = encode(&snapshot.installed)?;
+        (next.pending_json, next.pending_spans) = encode(&snapshot.pending)?;
+        (next.installed_csv, next.installed_csv_spans) =
+            crate::export::encode(&snapshot.installed)?;
+        (next.pending_csv, next.pending_csv_spans) = crate::export::encode(&snapshot.pending)?;
+        next.latest_index = snapshot.latest_installed_index();
+    }
+    // Failure-only cycles keep every prepared buffer while updating diagnostics.
+    next.coverage = snapshot
         .backends
         .iter()
         .map(|(name, status)| (name.clone(), status.enabled))
         .collect();
-    Ok((
-        data,
-        PublishedSnapshot {
-            snapshot: Arc::new(snapshot),
-            installed_json,
-            pending_json,
-            coverage,
-            latest_index,
-            installed_spans,
-            pending_spans,
-        },
-    ))
+    next.snapshot = Arc::new(snapshot);
+    Ok((data, next))
 }
 
 fn encode(records: &[PatchRecord]) -> Result<(Bytes, JsonSpans), serde_json::Error> {

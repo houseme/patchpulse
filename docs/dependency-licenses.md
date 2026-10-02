@@ -28,6 +28,8 @@ Regenerate with `cargo xtask dependency-policy --write` after dependency changes
 | clap_derive | 4.6.7 | MIT OR Apache-2.0 |
 | clap_lex | 1.1.1 | MIT OR Apache-2.0 |
 | colorchoice | 1.0.5 | MIT OR Apache-2.0 |
+| csv | 1.4.0 | Unlicense/MIT |
+| csv-core | 0.1.13 | Unlicense/MIT |
 | defmt | 1.1.1 | MIT OR Apache-2.0 |
 | defmt-macros | 1.1.1 | MIT OR Apache-2.0 |
 | defmt-parser | 1.0.0 | MIT OR Apache-2.0 |

@@ -51,6 +51,7 @@ pub fn build(state: ApiState, metrics_enabled: bool, timeout_secs: u64) -> Route
         )
         .route("/patches", get(installed))
         .route("/patches/pending", get(pending))
+        .route("/patches/export", get(export))
         .route("/patches/summary", get(summary));
     if metrics_enabled {
         router = router.route("/metrics", get(metrics));
@@ -174,6 +175,57 @@ fn list(
     }
     let view = state.store.view();
     json_bytes(view.list_json(pending, query.since))
+}
+
+#[derive(Deserialize, Default)]
+#[serde(deny_unknown_fields)]
+struct ExportQuery {
+    format: Option<String>,
+    status: Option<PatchStatus>,
+    since: Option<jiff::Timestamp>,
+}
+
+async fn export(
+    State(state): State<ApiState>,
+    query: Result<Query<ExportQuery>, QueryRejection>,
+) -> Response {
+    let Query(query) = match query {
+        Ok(query) => query,
+        Err(error) => {
+            return api_error(StatusCode::BAD_REQUEST, "invalid_query", &error.body_text());
+        }
+    };
+    if query
+        .format
+        .as_deref()
+        .is_some_and(|format| format != "csv")
+    {
+        return api_error(
+            StatusCode::BAD_REQUEST,
+            "invalid_query",
+            "format must be csv",
+        );
+    }
+    let status = query.status.unwrap_or(PatchStatus::Installed);
+    let csv = if matches!(status, PatchStatus::Installed | PatchStatus::Pending) {
+        state
+            .store
+            .view()
+            .list_csv(status == PatchStatus::Pending, query.since)
+    } else {
+        Bytes::from_static(crate::export::HEADER)
+    };
+    (
+        [
+            (header::CONTENT_TYPE, "text/csv; charset=utf-8"),
+            (
+                header::CONTENT_DISPOSITION,
+                "attachment; filename=\"patchpulse-inventory.csv\"",
+            ),
+        ],
+        csv,
+    )
+        .into_response()
 }
 
 #[derive(Serialize)]
