@@ -5,7 +5,7 @@ Requirements: All F1-F9. Dependencies: 01-07.
 ## Implementation steps
 
 1. Run fmt, strict clippy, unit/integration/API tests, rustdoc, dependency bans, license audit, and vulnerability audit.
-2. Add Linux/macOS/Windows CI and opt-in live Windows collector tests.
+2. Add Linux/macOS/Windows CI, a Windows MSVC release link check, and opt-in live Windows collector tests.
 3. Build a multi-stage Linux Docker image with a non-root runtime, read-only-compatible config, health check, and explicit bind.
 4. Provide a Windows container recipe separately; a Linux container cannot access host WMI/WUA.
 5. Build and smoke-test the local Docker image, recording health 200 and ready 503 for unsupported backends.
@@ -23,7 +23,7 @@ See [validation.md](../validation.md) for executed checks and platform limitatio
 
 ## Implementation record
 
-`Dockerfile`, `Dockerfile.windows`, `compose.yaml`, `.github/workflows/ci.yml`, and `examples/xtask/` Rust dependency/cache/Docker commands. The Linux image is built locally and smoke-tested. Windows image execution and remote CI are not claimed as completed.
+`Dockerfile`, `Dockerfile.windows`, `compose.yaml`, `.github/workflows/ci.yml`, and `examples/xtask/` Rust dependency/cache/Docker commands. The Linux image is built locally and smoke-tested. CI now includes an MSVC release executable link check; Windows image execution and remote CI are not claimed as completed.
 
 Run `cargo xtask dependency-policy`, `cargo xtask prepare-docker-cache`,
 `cargo xtask smoke-docker`, and `cargo xtask smoke-hub-docker`. Run tests with

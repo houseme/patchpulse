@@ -74,7 +74,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | 07.5 | Documented | LocalSystem/ACL/log sink/firewall/WSUS/native deployment limitations in deployment.md and AGENT.md. |
 | 07.6 | Implemented; cross-platform contract verified | Read-only token/elevation diagnostics run on a startup blocking worker; unknown/restricted privileges warn without disabling HTTP. Real Windows token behavior remains a live gate. |
 | 08.1 | Verified locally | Fmt, Clippy, tests, rustdoc, licenses/bans, cached advisory checks. Offline provenance recorded. |
-| 08.2 | Configured; remote execution pending | Linux/macOS/Windows workflow and opt-in live Windows collector tests. No remote CI success claimed. |
+| 08.2 | Configured; remote execution pending | Linux/macOS/Windows workflow, Windows MSVC release linking and opt-in live Windows collector tests. No remote CI success claimed. |
 | 08.3 | Verified Linux ARM64 | Actual Docker build: non-root scratch runtime, notices, built-in probe, explicit bind. |
 | 08.4 | Recipe provided; build/runtime pending | Dockerfile.windows requires Windows daemon and staged MSVC executable; no host-inventory guarantee. |
 | 08.5 | Verified Linux ARM64 | cargo xtask smoke-docker validates original HTTP endpoints, CSV, agent snapshot, 503 readiness, hardening and SIGTERM; smoke-hub-docker verifies both roles, machine identity, stale/unknown baseline and cleanup. |

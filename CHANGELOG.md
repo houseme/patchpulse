@@ -42,6 +42,7 @@ Unreleased entries do not announce a published release.
 
 ### End-to-end delivery checks
 
+- Add a native Windows CI release build that links the x86_64-pc-windows-msvc executable.
 - Extend Rust Docker smoke coverage to CSV and versioned Agent snapshots, and add a two-container Hub/Agent network check to CI.
 - Verify 70 host tests, strict host/Windows-target Clippy, upstream license policy, all four offline deny gates and a fresh official RustSec snapshot covering 244 crates.
 - Rebuild and smoke-test the Apache-2.0 Linux ARM64 image in both roles; record exact image, cleanup and remaining live Windows/remote gates in English validation documents.

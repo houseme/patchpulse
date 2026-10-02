@@ -78,6 +78,10 @@ credential policy. Windows RSS, idle/collection CPU, collection latency and
 network throughput goals remain unmeasured. Remote GitHub CI has not run in
 this local delivery.
 
+The Windows CI matrix now includes an x86_64-pc-windows-msvc release executable
+link check. This is workflow configuration, not evidence of a completed remote
+build or native Windows Server behavior.
+
 The earlier [validation record](validation.md), [refactor evidence](review-refactor.md)
 and [tool migration evidence](rust-tooling.md) retain their original historical
 commands and measurements. The original proposal remains historical design
