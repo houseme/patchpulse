@@ -210,6 +210,31 @@ async fn real_agent_polls_preserve_identity_failure_data_and_fleet_compliance() 
         response(&router, "/fleet/baseline", "GET").await.1["compliance"],
         "compliant"
     );
+    let strict = BaselineConfig {
+        enabled: true,
+        name: "requires-two".into(),
+        required_kbs: vec!["KB2".into()],
+    }
+    .prepare()
+    .unwrap();
+    let strict_router = api::build_with_features(
+        ApiState {
+            store: patchpulse::cache::SnapshotStore::new(30, &[]),
+            metrics: metrics.clone(),
+        },
+        true,
+        15,
+        ApiFeatures {
+            baseline: strict,
+            hub: Some(hub.store.clone()),
+        },
+    );
+    failing.store(true, Ordering::Release);
+    hub.poll_once(&metrics).await.unwrap();
+    let mixed = response(&strict_router, "/fleet/baseline", "GET").await.1;
+    assert_eq!(mixed["agents"]["a"]["compliance"], "unknown");
+    assert_eq!(mixed["agents"]["b"]["compliance"], "non_compliant");
+    assert_eq!(mixed["compliance"], "non_compliant");
 }
 
 #[tokio::test]

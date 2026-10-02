@@ -189,14 +189,14 @@ pub(super) async fn fleet_baseline(
     use crate::domain::baseline::Compliance;
     let compliance = if reports
         .values()
-        .any(|report| report.compliance == Compliance::Unknown)
-    {
-        Compliance::Unknown
-    } else if reports
-        .values()
         .any(|report| report.compliance == Compliance::NonCompliant)
     {
         Compliance::NonCompliant
+    } else if reports
+        .values()
+        .any(|report| report.compliance == Compliance::Unknown)
+    {
+        Compliance::Unknown
     } else {
         Compliance::Compliant
     };
