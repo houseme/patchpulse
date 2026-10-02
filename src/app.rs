@@ -23,6 +23,9 @@ pub async fn run(
     mut shutdown: watch::Receiver<bool>,
     on_listening: impl FnOnce() -> anyhow::Result<()>,
 ) -> anyhow::Result<()> {
+    tokio::task::spawn_blocking(crate::preflight::log_startup)
+        .await
+        .context("startup preflight worker")?;
     let listener = tokio::net::TcpListener::bind(config.server.bind)
         .await
         .context("bind HTTP listener")?;

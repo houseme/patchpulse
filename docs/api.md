@@ -1,6 +1,6 @@
 # HTTP API Contract
 
-Default address: `127.0.0.1:9100`. All endpoints accept GET and HEAD. Request handlers read cached snapshots. Unsupported methods return 405 and unknown paths return 404, both with `{"error":{"code":"...","message":"..."}}`. Invalid filters return 400 with the same error envelope. Requests exceeding the configured timeout return 408.
+Default address: `127.0.0.1:9100`. All endpoints accept GET and HEAD. Request handlers read cached snapshots. Unsupported methods return 405 and unknown paths return 404, both with `{"error":{"code":"...","message":"..."}}`. Invalid filters return 400 with the same error envelope. Requests exceeding the configured timeout return JSON 408 with code `request_timeout`; the timed-out handler is cancelled and the response is counted in HTTP metrics.
 
 | Endpoint | Status | Response |
 | --- | --- | --- |

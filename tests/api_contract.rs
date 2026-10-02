@@ -101,6 +101,8 @@ async fn filters_are_applied_and_invalid_queries_return_json_errors() {
         "/patches?status=bad",
         "/patches?typo=value",
         "/patches?since=2026-09-01",
+        "/patches?status=installed&status=pending",
+        "/patches?since=2026-09-01T00:00:00Z&since=2026-09-02T00:00:00Z",
     ] {
         let (status, body) = response(&router, "GET", uri).await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
@@ -213,4 +215,36 @@ async fn handlers_never_trigger_collection() {
         assert_eq!(response(&router, "GET", path).await.0, StatusCode::OK);
     }
     assert_eq!(backend.calls.load(Ordering::SeqCst), calls);
+}
+
+#[tokio::test]
+async fn all_routes_support_head_without_response_bodies() {
+    let (store, _, metrics) = setup(vec![mock("wua_installed", vec![])]);
+    let router = api::build(ApiState { store, metrics }, true, 15);
+    for (path, expected) in [
+        ("/health", StatusCode::OK),
+        ("/ready", StatusCode::SERVICE_UNAVAILABLE),
+        ("/version", StatusCode::OK),
+        ("/patches", StatusCode::OK),
+        ("/patches/pending", StatusCode::OK),
+        ("/patches/summary", StatusCode::OK),
+        ("/metrics", StatusCode::OK),
+    ] {
+        let result = router
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method("HEAD")
+                    .uri(path)
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(result.status(), expected, "{path}");
+        assert!(
+            to_bytes(result.into_body(), 1024).await.unwrap().is_empty(),
+            "{path}"
+        );
+    }
 }

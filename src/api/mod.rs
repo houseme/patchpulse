@@ -55,6 +55,10 @@ pub fn build(state: ApiState, metrics_enabled: bool, timeout_secs: u64) -> Route
     if metrics_enabled {
         router = router.route("/metrics", get(metrics));
     }
+    apply_policies(router, state, Duration::from_secs(timeout_secs))
+}
+
+fn apply_policies(router: Router<ApiState>, state: ApiState, timeout: Duration) -> Router {
     router
         .fallback(|| async { api_error(StatusCode::NOT_FOUND, "not_found", "route not found") })
         .method_not_allowed_fallback(|| async {
@@ -66,7 +70,7 @@ pub fn build(state: ApiState, metrics_enabled: bool, timeout_secs: u64) -> Route
         })
         .layer(TimeoutLayer::with_status_code(
             StatusCode::REQUEST_TIMEOUT,
-            Duration::from_secs(timeout_secs),
+            timeout,
         ))
         .layer(middleware::from_fn_with_state(
             state.clone(),
@@ -102,6 +106,15 @@ fn api_error(status: StatusCode, code: &str, message: &str) -> Response {
 async fn record_request(State(state): State<ApiState>, request: Request, next: Next) -> Response {
     let route = HttpRoute::from_path(request.uri().path());
     let response = next.run(request).await;
+    let response = if response.status() == StatusCode::REQUEST_TIMEOUT {
+        api_error(
+            StatusCode::REQUEST_TIMEOUT,
+            "request_timeout",
+            "request exceeded the configured timeout",
+        )
+    } else {
+        response
+    };
     state
         .metrics
         .record_request(route, response.status().as_u16());
@@ -207,4 +220,63 @@ async fn metrics(State(state): State<ApiState>) -> Response {
         ),
     )
         .into_response()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::body::{Body, to_bytes};
+    use std::sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    };
+    use tower::ServiceExt;
+
+    struct Cancelled(Arc<AtomicBool>);
+    impl Drop for Cancelled {
+        fn drop(&mut self) {
+            self.0.store(true, Ordering::Release);
+        }
+    }
+
+    #[tokio::test]
+    async fn request_timeout_cancels_handler_returns_json_and_records_408() {
+        let cancelled = Arc::new(AtomicBool::new(false));
+        let flag = Arc::clone(&cancelled);
+        let state = ApiState {
+            store: SnapshotStore::new(30, &[]),
+            metrics: Metrics::default(),
+        };
+        let router = apply_policies(
+            Router::new().route(
+                "/health",
+                get(move || async move {
+                    let _guard = Cancelled(flag);
+                    std::future::pending::<Response>().await
+                }),
+            ),
+            state.clone(),
+            Duration::from_millis(10),
+        );
+        let result = router
+            .oneshot(
+                Request::builder()
+                    .uri("/health")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(result.status(), StatusCode::REQUEST_TIMEOUT);
+        assert_eq!(result.headers()[header::CONTENT_TYPE], "application/json");
+        let body: serde_json::Value =
+            serde_json::from_slice(&to_bytes(result.into_body(), 1024).await.unwrap()).unwrap();
+        assert_eq!(body["error"]["code"], "request_timeout");
+        assert!(cancelled.load(Ordering::Acquire));
+        let rendered =
+            state
+                .metrics
+                .render(&state.store.view().snapshot, 30, jiff::Timestamp::now());
+        assert!(rendered.contains("path=\"/health\",status=\"408\"} 1"));
+    }
 }
