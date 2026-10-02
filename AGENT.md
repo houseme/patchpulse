@@ -49,6 +49,7 @@ platform APIs or HTTP/runtime dependencies.
 | src/scheduler/mod.rs | Immediate/periodic ticks; sole snapshot publisher |
 | src/api/mod.rs | Read-only handlers, cached JSON, filters and contracts |
 | src/observability/mod.rs | Tracing, bounded HTTP counters and Prometheus formatting |
+| src/observability/telemetry.rs | Optional bounded OTLP/HTTP JSON exporter and W3C context propagation |
 | src/service.rs | Windows SCM dispatch and service control/status lifecycle |
 | src/preflight.rs | Read-only token elevation and enabled-administrator startup diagnostics |
 | examples/xtask/ | Rust development commands for dependency policy, offline cache and Docker verification |
@@ -132,6 +133,11 @@ counters. Use structured tracing fields; do not log complete script contents or
 command lines. JSON logs use jiff timestamps. HTTP labels must stay bounded;
 unknown paths map to unmatched. Format coherent histogram snapshots outside the
 collector registry lock and keep metric families grouped.
+The optional OTLP exporter uses SDK batch workers and a five-second best-effort
+flush. Export only project spans with bounded route/backend/agent attributes;
+never attach inventory payloads, command/script text, credentials or raw URLs.
+SDK WARN/ERROR export failures stay visible while its potentially sensitive
+DEBUG/TRACE response-body records are suppressed from application logs.
 
 Required validation commands:
 
@@ -191,11 +197,13 @@ actual evidence. For an authorized history rewrite, retain a recovery reference,
 preserve all working files, and report divergence from the remote branch.
 
 Authoritative references: docs/requirements-audit.md, docs/tasks/README.md,
-docs/architecture.md, docs/api.md, docs/deployment.md, docs/review-refactor.md,
-and docs/validation.md. The historical PatchPulse Combat Solutions.md proposal
+docs/completion-validation.md, docs/architecture.md, docs/api.md,
+docs/deployment.md, docs/fleet.md and docs/telemetry.md. The earlier
+docs/review-refactor.md and docs/validation.md retain historical evidence.
+The historical PatchPulse Combat Solutions.md proposal
 contains obsolete dependency, date-library, licensing, coverage, and foreground
 service-registration examples; its F1-F9 requirements remain traceable in the audit.
-The user approved CSV export, agent/hub aggregation, OpenTelemetry trace export
-and baseline comparison for the current delivery. Tasks 09-12 govern these
-extensions. Preserve read-only HTTP, per-host inventory identity and explicit
-freshness/unknown compliance. Existing platform acceptance gates still apply.
+CSV export, configured agent/hub aggregation, OpenTelemetry trace export and
+baseline comparison are implemented under Tasks 09-12. Preserve read-only HTTP,
+per-host inventory identity and explicit freshness/unknown compliance. Windows,
+remote collector and production resource acceptance gates still apply.

@@ -1,6 +1,11 @@
 > Current task-by-task status is in [requirements-audit.md](requirements-audit.md); unresolved Windows acceptance gates remain explicit.
 
-> Superseded for the current branch by the [review and refactor record](review-refactor.md) and [Rust tooling migration](rust-tooling.md). The sections below preserve the original implementation validation, including commands from the retired Python tools. Current commands use cargo xtask; historical source hashes remain historical evidence.
+> Historical implementation record. The current delivery and platform limits are
+> tracked in [completion validation](completion-validation.md), with earlier
+> [review/refactor](review-refactor.md) and [Rust tooling](rust-tooling.md)
+> evidence retained separately. The sections below preserve their original
+> commands, image ID and database provenance; retired Python commands are not
+> current instructions.
 
 # Validation Record
 

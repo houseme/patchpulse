@@ -20,16 +20,22 @@ Project constraints: Apache-2.0 only for PatchPulse; English code comments; curr
 | 08 | [CI, Dependency Audit, and Docker Delivery](08-delivery.md) | 01-07 | Implemented; Linux image verified; remote CI pending |
 | 09 | [CSV Inventory Export](09-csv-export.md) | 02, 04, 05 | Implemented; export contracts pass |
 | 10 | [Agent and Hub Aggregation](10-agent-hub.md) | 03-06 | Implemented; real HTTP/TLS and lifecycle contracts pass |
-| 11 | [OpenTelemetry Trace Export](11-opentelemetry.md) | 03, 05, 06, 10 | Approved; implementation in progress |
+| 11 | [OpenTelemetry Trace Export](11-opentelemetry.md) | 03, 05, 06, 10 | Implemented; real local OTLP delivery and failure/privacy contracts pass |
 | 12 | [Patch Baseline Comparison](12-baseline.md) | 02, 04, 05, 10 | Agent and fleet implemented; contracts pass |
 
 ## Completion audit
 
-See [requirements-audit.md](../requirements-audit.md) for every step, acceptance criterion, source-proposal deviation and pending gate. F1-F9 code paths exist; production Windows acceptance is incomplete.
+See [requirements-audit.md](../requirements-audit.md) and
+[completion-validation.md](../completion-validation.md) for every step,
+acceptance criterion, source-proposal deviation and pending gate. F1-F9 and
+Tasks 09-12 have implemented paths; production Windows acceptance is incomplete.
 
 ## Delivery sequence
 
-Implement 01 and 02 first, then 03 and 04, followed by 05-07 and finally 08. Update the validation record as checks execute. No task is considered live-Windows validated solely because it compiles on macOS or Linux.
+Original implementation sequence: 01-02, 03-04, 05-07, then 08. The approved
+extensions followed: 09 and 10, then 11 and 12 using the Hub publication.
+Update the validation record as checks execute. No task is considered live-Windows
+validated solely because it compiles on macOS or Linux.
 
 ## Corrections to the source proposal
 

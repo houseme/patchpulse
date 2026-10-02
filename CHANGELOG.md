@@ -40,6 +40,12 @@ Unreleased entries do not announce a published release.
 - Preserve JSON/pretty logs and Prometheus independently; expose sanitized exporter WARN/ERROR while suppressing SDK debug response bodies that can contain credentials.
 - Validate actual OTLP batch receipt, trace linkage, payload privacy, collector failure isolation and bounded shutdown using loopback servers.
 
+### End-to-end delivery checks
+
+- Extend Rust Docker smoke coverage to CSV and versioned Agent snapshots, and add a two-container Hub/Agent network check to CI.
+- Verify 70 host tests, strict host/Windows-target Clippy, upstream license policy, all four offline deny gates and a fresh official RustSec snapshot covering 244 crates.
+- Rebuild and smoke-test the Apache-2.0 Linux ARM64 image in both roles; record exact image, cleanup and remaining live Windows/remote gates in English validation documents.
+
 ### Foundation, configuration, and patch model
 
 - Add the edition-2024 Rust library, pinned toolchain and dependency lockfile; license PatchPulse under Apache-2.0 and retain upstream notices.

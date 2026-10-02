@@ -1,4 +1,10 @@
-use std::{collections::BTreeMap, net::SocketAddr, path::Path, process::Command, time::Duration};
+use std::{
+    collections::BTreeMap,
+    net::SocketAddr,
+    path::{Path, PathBuf},
+    process::Command,
+    time::Duration,
+};
 
 use anyhow::{Context, ensure};
 use serde::{Deserialize, Serialize};
@@ -18,6 +24,7 @@ struct Image {
 #[serde(rename_all = "PascalCase")]
 struct ImageConfig {
     user: String,
+    labels: BTreeMap<String, String>,
 }
 
 #[derive(Deserialize)]
@@ -50,6 +57,9 @@ struct Report<'a> {
     size_bytes: u64,
     non_root: bool,
     read_only: bool,
+    project_license_checked: bool,
+    upstream_notices_checked: bool,
+    system_ca_checked: bool,
     healthcheck: &'static str,
     sigterm_exit_code: i32,
     endpoints: BTreeMap<&'static str, u16>,
@@ -81,7 +91,64 @@ impl Drop for Container {
     }
 }
 
-async fn docker(args: &[&str]) -> anyhow::Result<String> {
+struct TemporaryDirectory(PathBuf);
+impl TemporaryDirectory {
+    fn new() -> anyhow::Result<Self> {
+        let path = std::env::temp_dir().join(format!(
+            "patchpulse-image-notices-{}-{}",
+            std::process::id(),
+            jiff::Timestamp::now().as_nanosecond()
+        ));
+        std::fs::create_dir(&path).context("prepare image inspection directory")?;
+        Ok(Self(path))
+    }
+}
+impl Drop for TemporaryDirectory {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+async fn copy_image_file(container: &str, source: &str, destination: &Path) -> anyhow::Result<()> {
+    let from = format!("{container}:{source}");
+    let to = destination
+        .to_str()
+        .context("non-UTF-8 image inspection path")?;
+    docker(&["cp", &from, to]).await?;
+    Ok(())
+}
+
+async fn verify_image_documents(container: &str, root: &Path) -> anyhow::Result<()> {
+    let temporary = TemporaryDirectory::new()?;
+    for (name, remote, source) in [
+        (
+            "LICENSE",
+            "/usr/share/doc/patchpulse/LICENSE",
+            root.join("LICENSE"),
+        ),
+        (
+            "THIRD_PARTY_NOTICES.md",
+            "/usr/share/doc/patchpulse/THIRD_PARTY_NOTICES.md",
+            root.join("THIRD_PARTY_NOTICES.md"),
+        ),
+    ] {
+        let destination = temporary.0.join(name);
+        copy_image_file(container, remote, &destination).await?;
+        ensure!(
+            std::fs::read(destination)? == std::fs::read(source)?,
+            "runtime image contains stale or missing {name}"
+        );
+    }
+    let ca = temporary.0.join("ca-certificates.crt");
+    copy_image_file(container, "/etc/ssl/certs/ca-certificates.crt", &ca).await?;
+    ensure!(
+        std::fs::metadata(ca)?.len() > 1000,
+        "runtime image omitted system CA certificates"
+    );
+    Ok(())
+}
+
+pub(super) async fn docker(args: &[&str]) -> anyhow::Result<String> {
     let args: Vec<_> = args.iter().map(|arg| (*arg).to_owned()).collect();
     // Docker waits must not block the executor driving HTTP probes.
     let output = tokio::task::spawn_blocking(move || {
@@ -127,6 +194,9 @@ async fn verify_endpoints(address: SocketAddr) -> anyhow::Result<BTreeMap<&'stat
         ("/patches", 200),
         ("/patches/pending", 200),
         ("/patches/summary", 200),
+        ("/patches/export", 200),
+        ("/snapshot", 200),
+        ("/patches/baseline", 404),
         ("/metrics", 200),
         ("/patches?since=invalid", 400),
         ("/missing", 404),
@@ -163,6 +233,35 @@ async fn verify_endpoints(address: SocketAddr) -> anyhow::Result<BTreeMap<&'stat
                 "Linux must not fabricate Windows inventory"
             );
         }
+        if path == "/patches/export" {
+            ensure!(
+                response
+                    .headers
+                    .get("content-type")
+                    .and_then(|value| value.to_str().ok())
+                    == Some("text/csv; charset=utf-8"),
+                "CSV export has the wrong content type"
+            );
+            let mut reader = csv::Reader::from_reader(response.body.as_ref());
+            ensure!(
+                reader.headers()?.len() == 13 && reader.records().next().is_none(),
+                "unsupported host must export an empty inventory with the complete CSV schema"
+            );
+        }
+        if path == "/snapshot" {
+            let wire: serde_json::Value = serde_json::from_slice(&response.body)?;
+            ensure!(
+                wire["schema_version"] == 1
+                    && wire["is_stale"] == true
+                    && wire["snapshot"]["installed"]
+                        .as_array()
+                        .is_some_and(Vec::is_empty)
+                    && wire["snapshot"]["pending"]
+                        .as_array()
+                        .is_some_and(Vec::is_empty),
+                "unsupported host must export a coherent stale and empty agent snapshot"
+            );
+        }
     }
     ensure!(
         http::request(address, "POST", "/patches").await?.status == 405,
@@ -174,6 +273,19 @@ async fn verify_endpoints(address: SocketAddr) -> anyhow::Result<BTreeMap<&'stat
     );
     checks.insert("POST /patches", 405);
     checks.insert("HEAD /health", 200);
+    ensure!(
+        http::request(address, "POST", "/patches/export")
+            .await?
+            .status
+            == 405,
+        "CSV exports must reject writes"
+    );
+    ensure!(
+        http::request(address, "HEAD", "/snapshot").await?.status == 200,
+        "agent snapshot HEAD probe failed"
+    );
+    checks.insert("POST /patches/export", 405);
+    checks.insert("HEAD /snapshot", 200);
     Ok(checks)
 }
 
@@ -196,7 +308,7 @@ fn verify_logs(logs: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn verify<'a>(name: &str, image: &'a str) -> anyhow::Result<Report<'a>> {
+async fn verify<'a>(name: &str, image: &'a str, root: &Path) -> anyhow::Result<Report<'a>> {
     docker(&[
         "run",
         "-d",
@@ -234,6 +346,15 @@ async fn verify<'a>(name: &str, image: &'a str) -> anyhow::Result<Report<'a>> {
         details.config.user == "65532:65532",
         "runtime must use non-root UID/GID 65532"
     );
+    ensure!(
+        details
+            .config
+            .labels
+            .get("org.opencontainers.image.licenses")
+            .is_some_and(|license| license == "Apache-2.0"),
+        "PatchPulse image must be Apache-2.0 only"
+    );
+    verify_image_documents(name, root).await?;
     verify_logs(&docker(&["logs", name]).await?)?;
     docker(&["stop", "--time", "15", name]).await?;
     let state: ContainerState = parse_inspect(&docker(&["inspect", name]).await?)?;
@@ -259,13 +380,16 @@ async fn verify<'a>(name: &str, image: &'a str) -> anyhow::Result<Report<'a>> {
         size_bytes: details.size,
         non_root: true,
         read_only: true,
+        project_license_checked: true,
+        upstream_notices_checked: true,
+        system_ca_checked: true,
         healthcheck: "passed",
         sigterm_exit_code: state.state.exit_code,
         endpoints,
     })
 }
 
-pub(super) fn run(image: &str, report: &Path) -> anyhow::Result<()> {
+pub(super) fn run(root: &Path, image: &str, report: &Path) -> anyhow::Result<()> {
     let mut container = Container {
         name: format!(
             "patchpulse-smoke-{}-{}",
@@ -277,7 +401,7 @@ pub(super) fn run(image: &str, report: &Path) -> anyhow::Result<()> {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?;
-    let verification = runtime.block_on(verify(&container.name, image));
+    let verification = runtime.block_on(verify(&container.name, image, root));
     let cleanup = container.remove();
     let verified = verification?;
     cleanup.context("verification passed but container cleanup failed")?;
