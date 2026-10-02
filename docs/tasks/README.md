@@ -17,7 +17,7 @@ Project constraints: Apache-2.0 only for PatchPulse; English code comments; curr
 | 05 | [HTTP Contracts and Input Validation](05-api.md) | 04 | Implemented; local gates pass |
 | 06 | [Structured Logging, Prometheus, and Alerts](06-observability.md) | 03, 04, 05 | Implemented; local gates pass |
 | 07 | [Windows Service Lifecycle and Deployment](07-service.md) | 01, 04, 05 | Implemented; live Windows gate pending |
-| 08 | [CI, Dependency Audit, and Docker Delivery](08-delivery.md) | 01-07 | Implemented; Linux image verified; remote CI pending |
+| 08 | [CI, Dependency Audit, and Docker Delivery](08-delivery.md) | 01-07 | Implemented; Linux image and remote CI verified; Windows Server/container gates pending |
 | 09 | [CSV Inventory Export](09-csv-export.md) | 02, 04, 05 | Implemented; export contracts pass |
 | 10 | [Agent and Hub Aggregation](10-agent-hub.md) | 03-06 | Implemented; real HTTP/TLS and lifecycle contracts pass |
 | 11 | [OpenTelemetry Trace Export](11-opentelemetry.md) | 03, 05, 06, 10 | Implemented; real local OTLP delivery and failure/privacy contracts pass |
@@ -29,6 +29,8 @@ See [requirements-audit.md](../requirements-audit.md) and
 [completion-validation.md](../completion-validation.md) for every step,
 acceptance criterion, source-proposal deviation and pending gate. F1-F9 and
 Tasks 09-12 have implemented paths; production Windows acceptance is incomplete.
+Follow the [Windows Server manual acceptance guide](../windows-server-manual-validation.md)
+on each supported server release to close those gates.
 
 ## Delivery sequence
 

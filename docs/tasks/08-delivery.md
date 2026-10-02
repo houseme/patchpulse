@@ -23,7 +23,7 @@ See [validation.md](../validation.md) for executed checks and platform limitatio
 
 ## Implementation record
 
-`Dockerfile`, `Dockerfile.windows`, `compose.yaml`, `.github/workflows/ci.yml`, and `examples/xtask/` Rust dependency/cache/Docker commands. The Linux image is built locally and smoke-tested. CI now includes an MSVC release executable link check; Windows image execution and remote CI are not claimed as completed.
+`Dockerfile`, `Dockerfile.windows`, `compose.yaml`, `.github/workflows/ci.yml`, and `examples/xtask/` Rust dependency/cache/Docker commands. The Linux image is built locally and smoke-tested. GitHub Actions [run 37002534605](https://github.com/houseme/patchpulse/actions/runs/37002534605) passed its five jobs, including the Windows MSVC release executable link check. Windows Server and container execution are still pending.
 
 Run `cargo xtask dependency-policy`, `cargo xtask prepare-docker-cache`,
 `cargo xtask smoke-docker`, and `cargo xtask smoke-hub-docker`. Run tests with
@@ -35,3 +35,5 @@ See [rust-tooling.md](../rust-tooling.md) for the implementation and command gui
 ## Comprehensive audit
 
 Step-by-step implementation and acceptance status is recorded in [requirements-audit.md](../requirements-audit.md). Code presence does not complete the live Windows release gates.
+Use the [manual Windows Server validation guide](../windows-server-manual-validation.md)
+to record each target OS's operational evidence.

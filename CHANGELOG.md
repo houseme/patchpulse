@@ -42,6 +42,8 @@ Unreleased entries do not announce a published release.
 
 ### End-to-end delivery checks
 
+- Publish an English, version-by-version Windows Server manual acceptance guide with executable checks and evidence fields.
+- Confirm a successful five-job remote CI run on Linux, macOS and Windows, including MSVC release linking, dependency policy and Docker role smoke checks.
 - Add a native Windows CI release build that links the x86_64-pc-windows-msvc executable.
 - Extend Rust Docker smoke coverage to CSV and versioned Agent snapshots, and add a two-container Hub/Agent network check to CI.
 - Verify 70 host tests, strict host/Windows-target Clippy, upstream license policy, all four offline deny gates and a fresh official RustSec snapshot covering 244 crates.
