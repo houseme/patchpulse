@@ -23,3 +23,9 @@ log_format = "json"
 metrics_enabled = true
 # Set a writable log file for SCM mode, which has no console.
 # log_file = "C:/PatchPulse/logs/patchpulse.jsonl"
+
+[baseline]
+enabled = false
+name = "monthly"
+required_kbs = []
+# Set enabled=true and list exact required KBs, for example ["KB5034441"].

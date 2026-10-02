@@ -32,13 +32,16 @@ pub async fn run(
     let orchestrator = Arc::new(collector::build(&config.collector));
     let store = SnapshotStore::new(config.cache.stale_after_secs, &orchestrator.enabled_names());
     let metrics = Metrics::default();
-    let router = api::build(
+    let router = api::build_with_features(
         ApiState {
             store: store.clone(),
             metrics: metrics.clone(),
         },
         config.observability.metrics_enabled,
         config.server.request_timeout_secs,
+        api::ApiFeatures {
+            baseline: config.baseline.prepare()?,
+        },
     );
     on_listening()?;
     tracing::info!(address = %listener.local_addr()?, "PatchPulse listening");

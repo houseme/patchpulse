@@ -4,7 +4,7 @@ use crate::{
     observability::{HttpRoute, Metrics},
 };
 use axum::{
-    Json, Router,
+    Extension, Json, Router,
     extract::{Query, Request, State, rejection::QueryRejection},
     http::{StatusCode, header},
     middleware::{self, Next},
@@ -22,7 +22,21 @@ pub struct ApiState {
     pub metrics: Metrics,
 }
 
+#[derive(Clone, Default)]
+pub struct ApiFeatures {
+    pub baseline: Option<crate::domain::baseline::Baseline>,
+}
+
 pub fn build(state: ApiState, metrics_enabled: bool, timeout_secs: u64) -> Router {
+    build_with_features(state, metrics_enabled, timeout_secs, ApiFeatures::default())
+}
+
+pub fn build_with_features(
+    state: ApiState,
+    metrics_enabled: bool,
+    timeout_secs: u64,
+    features: ApiFeatures,
+) -> Router {
     let mut router = Router::new()
         .route(
             "/health",
@@ -55,6 +69,12 @@ pub fn build(state: ApiState, metrics_enabled: bool, timeout_secs: u64) -> Route
         .route("/patches/summary", get(summary));
     if metrics_enabled {
         router = router.route("/metrics", get(metrics));
+    }
+    if let Some(baseline) = features.baseline {
+        router = router.route(
+            "/patches/baseline",
+            get(compare_baseline).layer(Extension(std::sync::Arc::new(baseline))),
+        );
     }
     apply_policies(router, state, Duration::from_secs(timeout_secs))
 }
@@ -226,6 +246,21 @@ async fn export(
         csv,
     )
         .into_response()
+}
+
+async fn compare_baseline(
+    State(state): State<ApiState>,
+    Extension(baseline): Extension<std::sync::Arc<crate::domain::baseline::Baseline>>,
+) -> Response {
+    let view = state.store.view();
+    Json(
+        baseline.compare(
+            &view.snapshot,
+            view.snapshot
+                .is_stale(jiff::Timestamp::now(), state.store.stale_after_secs),
+        ),
+    )
+    .into_response()
 }
 
 #[derive(Serialize)]

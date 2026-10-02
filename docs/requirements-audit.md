@@ -122,7 +122,7 @@ A step can have implemented code and still require platform acceptance. Step num
 | v0.2 CSV export | Implemented; prepared UTF-8 CSV, filters, formula escaping, failure retention and actual router contracts pass (Task 09). |
 | v0.3 agent/hub aggregation | User-approved current delivery; Task 10 supersedes the earlier aggregation non-goal. |
 | v0.4 OpenTelemetry export | User-approved current delivery; Task 11 implementation in progress. |
-| v0.5 compliance baseline comparison | User-approved current delivery; Task 12 implementation in progress. |
+| v0.5 compliance baseline comparison | Agent exact-KB comparison implemented with stale/initial unknown results; fleet comparison follows Task 10. |
 | Patch download/install and Web UI | Explicit non-goals; intentionally absent. |
 
 ## Required external acceptance evidence

@@ -10,6 +10,7 @@ Default address: `127.0.0.1:9100`. All endpoints accept GET and HEAD. Request ha
 | /patches | 200 | Installed list: count and items |
 | /patches/pending | 200 | Pending list: count and items |
 | /patches/export | 200 | UTF-8 CSV attachment of installed or pending inventory |
+| /patches/baseline | 200 or 404 when disabled | Named exact-KB comparison with explicit compliance/freshness |
 | /patches/summary | 200 | Counts, installation dates, freshness, failures, coverage, backend statuses, reboot state |
 | /metrics | 200 or 404 when disabled | Prometheus 0.0.4 text |
 
@@ -54,3 +55,19 @@ unmodified JSON text. No export request starts collection.
 CSV buffers and complete row spans are prepared alongside JSON during publication.
 Failure-only cycles share previous buffers. Full exports share bytes; since
 filters copy selected complete rows from the same immutable view.
+
+## Baseline comparison
+
+Configure `[baseline]` with enabled=true, a name and a nonempty required_kbs list.
+Numeric KBs normalize to KB-prefixed keys and duplicates collapse. The default
+disabled feature returns JSON 404. GET/HEAD `/patches/baseline` reports baseline,
+compliance, required_count, installed_count, missing_count, pending_count,
+installed, missing, pending, is_stale, last_refreshed and last_error. Lists are
+sorted KB keys; pending is the subset of missing KBs observed as pending.
+
+Compliance is compliant only when every required KB is installed and input is
+fresh. Fresh input with missing KBs is non_compliant. Before readiness or after
+source/transport failure or expiry, compliance is unknown even when retained
+data previously satisfied the baseline. Counts/lists remain observations from
+that same snapshot. Comparison uses exact KB membership; it does not infer
+supersedence, security/vulnerability coverage or patch installation.
