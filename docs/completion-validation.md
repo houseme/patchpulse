@@ -21,6 +21,7 @@ evidence is in [requirements-audit.md](requirements-audit.md).
 | `cargo run --locked -- --check-config --config config/hub.toml` | Passed. |
 | Offline Docker build and both Rust smoke commands | Passed on Linux ARM64; reports linked below. |
 | [GitHub Actions run 37002534605](https://github.com/houseme/patchpulse/actions/runs/37002534605) on `8a6d2da25dd6c4edbb97e171d6455a84d3915b1e` | Passed on 2026-10-02: Linux, macOS, Windows, dependencies and Docker jobs. The Windows job linked the x86_64-pc-windows-msvc release executable. Ignored live collector tests were not run. |
+| [Merged-main CI run 37009989774](https://github.com/houseme/patchpulse/actions/runs/37009989774) on `c5fbd1dff924e2c32e1ba593eade6463f85ec24e` | All five jobs passed after PR #1 was rebased into `main`; the PR head's push and pull-request runs also passed all ten checks before merge. |
 | Windows Server manual guide | All nine PowerShell command blocks parsed with the PowerShell parser; the commands await execution on Server 2016/2019/2022. |
 
 The first full test command ran under a sandbox that denied local TCP bind and

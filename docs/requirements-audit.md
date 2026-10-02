@@ -196,18 +196,19 @@ repository that allows rebase/squash but not merge commits, the 18 reviewed
 functional trees were replayed in order on top of that aggregate commit. Each
 replayed tree matches its original reviewed counterpart exactly; the first
 commit folds removal of the superseded aggregate into the licensed foundation.
-GitHub Actions runs on the PR branch before integration.
+Both PR checks and [merged-main CI](https://github.com/houseme/patchpulse/actions/runs/37009989774)
+passed; the table below uses the final commit IDs on `main`.
 
 | Sequence | Commit | Functional boundary |
 | --- | --- | --- |
-| 1 | `19d3fa32c5` | build: replace aggregate with licensed Rust foundation |
-| 2 | `3efb47eb09` | feat(observability): add structured logs and bounded Prometheus metrics |
-| 3 | `631c7f3d65` | feat(collector): collect Windows updates with bounded backend execution |
-| 4 | `8a7ba97872` | feat(snapshot): publish prepared inventories with failure retention |
-| 5 | `653c809e27` | feat(api): expose cached patch queries and stable HTTP contracts |
-| 6 | `e40e181cb0` | feat(service): add foreground and Windows SCM lifecycle |
-| 7 | `7aef968cda` | ci: package hardened Docker images and validation workflows |
-| 8 | `ca091ff8a3` | English agent guide, comprehensive requirement audit and cumulative Changelog |
+| 1 | `790ce700d6` | build: replace aggregate with licensed Rust foundation |
+| 2 | `2699bc8fa4` | feat(observability): add structured logs and bounded Prometheus metrics |
+| 3 | `2766cea979` | feat(collector): collect Windows updates with bounded backend execution |
+| 4 | `5d9abfd8bb` | feat(snapshot): publish prepared inventories with failure retention |
+| 5 | `905a409b6f` | feat(api): expose cached patch queries and stable HTTP contracts |
+| 6 | `4aaf33798a` | feat(service): add foreground and Windows SCM lifecycle |
+| 7 | `4083d1282f` | ci: package hardened Docker images and validation workflows |
+| 8 | `d8946d3d08` | English agent guide, comprehensive requirement audit and cumulative Changelog |
 
 ## Subsequent functional commits
 
@@ -217,13 +218,13 @@ validation commit records the final image and exact branch status.
 
 | Sequence | Commit | Functional boundary |
 | --- | --- | --- |
-| 9 | `2b8ebc522c` | refactor(tooling): replace Python helpers with Rust xtask |
-| 10 | `dc9c204ee3` | feat(runtime): privilege preflight and complete HTTP timeout contracts |
-| 11 | `e96c816fcf` | feat(export): prepared CSV patch inventories |
-| 12 | `91bb4d9272` | feat(baseline): compare configured KB requirements |
-| 13 | `7dca788c09` | feat(hub): bounded machine-scoped Agent/Hub aggregation |
-| 14 | `dfccf33340` | fix(baseline): preserve conclusive fleet non-compliance |
-| 15 | `9e9ae8c001` | feat(telemetry): bounded OTLP/HTTP trace export |
-| 16 | `ec01d3d298` | ci(validation): final local Agent/Hub image and dependency evidence |
-| 17 | `c5a6948810` | ci(windows): MSVC release executable link check |
-| 18 | `2ca4efccd5` | docs(validation): Windows Server acceptance guide and remote CI evidence |
+| 9 | `bbef6e84c2` | refactor(tooling): replace Python helpers with Rust xtask |
+| 10 | `93a719a83a` | feat(runtime): privilege preflight and complete HTTP timeout contracts |
+| 11 | `edc79befb6` | feat(export): prepared CSV patch inventories |
+| 12 | `4b9e23c7ce` | feat(baseline): compare configured KB requirements |
+| 13 | `2e9a8f1941` | feat(hub): bounded machine-scoped Agent/Hub aggregation |
+| 14 | `a44ef876af` | fix(baseline): preserve conclusive fleet non-compliance |
+| 15 | `18fc6855aa` | feat(telemetry): bounded OTLP/HTTP trace export |
+| 16 | `c059fe839f` | ci(validation): final local Agent/Hub image and dependency evidence |
+| 17 | `d6aada0798` | ci(windows): MSVC release executable link check |
+| 18 | `e57bdd6517` | docs(validation): Windows Server acceptance guide and remote CI evidence |
