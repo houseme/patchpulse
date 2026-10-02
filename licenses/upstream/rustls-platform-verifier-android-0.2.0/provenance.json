@@ -1,0 +1,20 @@
+{
+  "crate": "rustls-platform-verifier-android",
+  "version": "0.2.0",
+  "commit": "252e25161a91af476cbea620e29d277592d27ec7",
+  "checked_on": "2026-10-02",
+  "sources": [
+    {
+      "file": "LICENSE-APACHE",
+      "url": "https://raw.githubusercontent.com/rustls/rustls-platform-verifier/252e25161a91af476cbea620e29d277592d27ec7/LICENSE-APACHE",
+      "retrieved_via": "https://api.github.com/repos/rustls/rustls-platform-verifier/contents/LICENSE-APACHE?ref=252e25161a91af476cbea620e29d277592d27ec7",
+      "git_blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+    },
+    {
+      "file": "LICENSE-MIT",
+      "url": "https://raw.githubusercontent.com/rustls/rustls-platform-verifier/252e25161a91af476cbea620e29d277592d27ec7/LICENSE-MIT",
+      "retrieved_via": "https://api.github.com/repos/rustls/rustls-platform-verifier/contents/LICENSE-MIT?ref=252e25161a91af476cbea620e29d277592d27ec7",
+      "git_blob": "9964122648c6348a3c8e61d6d46a87d5942d036c"
+    }
+  ]
+}

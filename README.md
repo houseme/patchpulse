@@ -15,11 +15,17 @@ docker run --rm -p 127.0.0.1:9100:9100 patchpulse:0.1.0
 
 Endpoints: `/health`, `/ready`, `/version`, `/patches`, `/patches/pending`, `/patches/summary`, `/metrics`. No endpoint downloads or installs updates.
 
+The default agent also serves read-only `/snapshot`, `/patches/export` and an
+optional `/patches/baseline`. Hub mode polls configured agents and exposes
+machine-scoped `/agents` and `/fleet` queries. See [fleet operation](docs/fleet.md)
+and [the complete API contract](docs/api.md).
+
 - [Requirements and completion audit](docs/requirements-audit.md)
 - [English implementation tasks](docs/tasks/README.md)
 - [Changelog](CHANGELOG.md)
 - [Architecture](docs/architecture.md) and [API contract](docs/api.md)
 - [Windows service and Docker deployment](docs/deployment.md)
+- [Agent and hub operation](docs/fleet.md)
 - [Review findings and performance refactor](docs/review-refactor.md)
 - [Validation evidence and remaining release gates](docs/validation.md)
 - [Rust development tools](docs/rust-tooling.md)

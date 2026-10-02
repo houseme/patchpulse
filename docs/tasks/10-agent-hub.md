@@ -25,3 +25,10 @@ No HTTP request can configure targets or trigger collection. Agent data remains
 scoped to its configured ID. HTTPS validates certificates; credentials come from
 configured environment variable names and never appear in responses or logs.
 The agent remains usable independently. Live Windows/remote acceptance is separate.
+
+## Implementation record
+
+src/hub.rs, src/domain/agent.rs, src/net.rs, the mode-specific API and
+config/hub.toml implement the poll/publish/query lifecycle. See fleet.md and
+tests/hub_contract.rs for real HTTP, retained failures, budgets, bounded
+concurrency, shutdown and untrusted HTTPS certificate rejection.
