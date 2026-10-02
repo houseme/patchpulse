@@ -1,9 +1,0 @@
-.git
-.idea
-.agents
-.codex
-target
-docs
-tests
-*.log
-*.pdb
