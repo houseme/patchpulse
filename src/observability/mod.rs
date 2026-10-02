@@ -9,6 +9,12 @@ use tracing_subscriber::{
     EnvFilter,
     fmt::{format::Writer, time::FormatTime},
 };
+pub(crate) mod telemetry;
+use opentelemetry::trace::TracerProvider as _;
+pub use telemetry::TraceGuard;
+use tracing_subscriber::{
+    Layer as _, filter::FilterExt as _, layer::SubscriberExt as _, util::SubscriberInitExt as _,
+};
 
 struct JiffClock;
 impl FormatTime for JiffClock {
@@ -17,7 +23,8 @@ impl FormatTime for JiffClock {
     }
 }
 
-pub fn init_logging(config: &ObservabilityConfig) -> anyhow::Result<()> {
+pub fn init_logging(config: &ObservabilityConfig) -> anyhow::Result<TraceGuard> {
+    let provider = telemetry::provider(&config.traces)?;
     let filter = EnvFilter::try_new(&config.log_level)?;
     let writer = match &config.log_file {
         Some(path) => tracing_subscriber::fmt::writer::BoxMakeWriter::new(Mutex::new(
@@ -28,20 +35,74 @@ pub fn init_logging(config: &ObservabilityConfig) -> anyhow::Result<()> {
         )),
         None => tracing_subscriber::fmt::writer::BoxMakeWriter::new(std::io::stdout),
     };
-    let builder = tracing_subscriber::fmt()
-        .with_env_filter(filter)
+    if let Some(provider) = &provider {
+        install_formatter(
+            tracing_subscriber::registry().with(otel_layer(provider)),
+            filter,
+            writer,
+            &config.log_format,
+        )?;
+    } else {
+        install_formatter(
+            tracing_subscriber::registry(),
+            filter,
+            writer,
+            &config.log_format,
+        )?;
+    }
+    if provider.is_some() {
+        telemetry::activate();
+    }
+    Ok(TraceGuard::new(provider))
+}
+
+fn install_formatter<S>(
+    subscriber: S,
+    filter: EnvFilter,
+    writer: tracing_subscriber::fmt::writer::BoxMakeWriter,
+    format: &str,
+) -> anyhow::Result<()>
+where
+    S: tracing::Subscriber
+        + for<'span> tracing_subscriber::registry::LookupSpan<'span>
+        + Send
+        + Sync
+        + 'static,
+{
+    // SDK DEBUG/TRACE records can include collector response bodies; keep its
+    // sanitized WARN/ERROR records while preserving application debug logging.
+    let filter = filter.and(tracing_subscriber::filter::filter_fn(|metadata| {
+        !matches!(
+            *metadata.level(),
+            tracing::Level::DEBUG | tracing::Level::TRACE
+        ) || !metadata.target().starts_with("opentelemetry")
+    }));
+    let formatter = tracing_subscriber::fmt::layer()
         .with_timer(JiffClock)
         .with_writer(writer)
         .with_ansi(false);
-    if config.log_format == "json" {
-        builder.json().try_init().map_err(|e| anyhow::anyhow!(e))?;
-    } else {
-        builder
-            .pretty()
+    if format == "json" {
+        subscriber
+            .with(formatter.json().with_filter(filter))
             .try_init()
-            .map_err(|e| anyhow::anyhow!(e))?;
+            .map_err(|error| anyhow::anyhow!(error))?;
+    } else {
+        subscriber
+            .with(formatter.pretty().with_filter(filter))
+            .try_init()
+            .map_err(|error| anyhow::anyhow!(error))?;
     }
     Ok(())
+}
+
+fn otel_layer(
+    provider: &opentelemetry_sdk::trace::SdkTracerProvider,
+) -> impl tracing_subscriber::Layer<tracing_subscriber::Registry> + use<> {
+    tracing_opentelemetry::layer()
+        .with_tracer(provider.tracer("patchpulse"))
+        .with_filter(tracing_subscriber::filter::filter_fn(|metadata| {
+            metadata.is_span() && metadata.target().starts_with("patchpulse::")
+        }))
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -107,7 +168,7 @@ impl HttpRoute {
             _ => Self::Other,
         }
     }
-    fn path(self) -> &'static str {
+    pub(crate) fn path(self) -> &'static str {
         match self {
             Self::Health => "/health",
             Self::Ready => "/ready",

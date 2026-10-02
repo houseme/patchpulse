@@ -33,6 +33,13 @@ Unreleased entries do not announce a published release.
 
 - Preserve a conclusive non-compliant fleet result when another agent is unreachable or stale; keep that agent's own result unknown.
 
+### OpenTelemetry trace export
+
+- Add opt-in OTLP/HTTP JSON trace export with configurable parent-based sampling, bounded SDK queue, request size, retry and timeout limits, and five-second shutdown flush.
+- Trace HTTP, collectors and hub polls with W3C parent propagation, fixed route and validated agent labels, explicit error status and no inventory or raw URL attributes.
+- Preserve JSON/pretty logs and Prometheus independently; expose sanitized exporter WARN/ERROR while suppressing SDK debug response bodies that can contain credentials.
+- Validate actual OTLP batch receipt, trace linkage, payload privacy, collector failure isolation and bounded shutdown using loopback servers.
+
 ### Foundation, configuration, and patch model
 
 - Add the edition-2024 Rust library, pinned toolchain and dependency lockfile; license PatchPulse under Apache-2.0 and retain upstream notices.

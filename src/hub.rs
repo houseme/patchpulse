@@ -14,6 +14,7 @@ use std::{
     time::{Duration, Instant},
 };
 use tokio::sync::{Mutex, Semaphore, watch};
+use tracing::Instrument as _;
 
 #[derive(Debug, Clone, Default)]
 pub struct AgentState {
@@ -184,6 +185,7 @@ impl Hub {
             publisher: Mutex::new(()),
         })
     }
+    #[tracing::instrument(name = "patchpulse.hub_cycle", skip(self, metrics),fields(otel.status_code))]
     pub async fn poll_once(&self, metrics: &Metrics) -> anyhow::Result<()> {
         let _publisher = self.publisher.lock().await;
         let semaphore = Arc::new(Semaphore::new(self.config.max_concurrency));
@@ -193,20 +195,27 @@ impl Hub {
             let client = self.client.clone();
             let semaphore = Arc::clone(&semaphore);
             let limit = self.config.max_response_bytes;
-            tasks.spawn(async move {
-                let permit = semaphore.acquire_owned().await;
-                let started = Instant::now();
-                let result = match permit {
-                    Ok(_permit) => fetch(&client, &agent, limit).await,
-                    Err(_) => Err(anyhow::anyhow!("hub poll cancelled")),
-                };
-                (
-                    agent.id.clone(),
-                    Timestamp::now(),
-                    started.elapsed().as_secs_f64(),
-                    result,
-                )
-            });
+            let span = tracing::info_span!("patchpulse.hub_agent",otel.kind="client",otel.status_code=tracing::field::Empty,agent.id=%agent.id);
+            tasks.spawn(
+                async move {
+                    let permit = semaphore.acquire_owned().await;
+                    let started = Instant::now();
+                    let result = match permit {
+                        Ok(_permit) => fetch(&client, &agent, limit).await,
+                        Err(_) => Err(anyhow::anyhow!("hub poll cancelled")),
+                    };
+                    if result.is_err() {
+                        tracing::Span::current().record("otel.status_code", "ERROR");
+                    }
+                    (
+                        agent.id.clone(),
+                        Timestamp::now(),
+                        started.elapsed().as_secs_f64(),
+                        result,
+                    )
+                }
+                .instrument(span),
+            );
         }
         let mut next = (*self.store.view()).clone();
         let mut received = 0;
@@ -248,6 +257,9 @@ impl Hub {
         if received > 0 {
             next.last_refreshed = Some(Timestamp::now());
         }
+        if next.agents.values().any(|agent| agent.last_error.is_some()) {
+            tracing::Span::current().record("otel.status_code", "ERROR");
+        }
         self.store.published.send_replace(Arc::new(next));
         Ok(())
     }
@@ -259,7 +271,9 @@ struct Received {
     size: usize,
 }
 async fn fetch(client: &reqwest::Client, agent: &Agent, limit: usize) -> anyhow::Result<Received> {
-    let mut request = client.get(agent.endpoint.clone());
+    let mut headers = reqwest::header::HeaderMap::new();
+    crate::observability::telemetry::inject(&mut headers);
+    let mut request = client.get(agent.endpoint.clone()).headers(headers);
     if let Some(value) = &agent.authorization {
         request = request.header(reqwest::header::AUTHORIZATION, value.clone());
     }

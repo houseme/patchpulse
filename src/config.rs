@@ -265,6 +265,66 @@ pub struct ObservabilityConfig {
     pub log_format: String,
     pub metrics_enabled: bool,
     pub log_file: Option<PathBuf>,
+    pub traces: TraceConfig,
+}
+#[derive(Debug, Clone, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct TraceConfig {
+    pub enabled: bool,
+    pub endpoint: String,
+    pub service_name: String,
+    pub sample_ratio: f64,
+    pub max_queue_size: usize,
+    pub export_timeout_secs: u64,
+}
+impl Default for TraceConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            endpoint: "http://127.0.0.1:4318/v1/traces".into(),
+            service_name: "patchpulse".into(),
+            sample_ratio: 0.1,
+            max_queue_size: 1024,
+            export_timeout_secs: 2,
+        }
+    }
+}
+impl TraceConfig {
+    pub fn validate(&self) -> anyhow::Result<()> {
+        let url = reqwest::Url::parse(&self.endpoint).context("invalid OTLP trace URL")?;
+        anyhow::ensure!(
+            matches!(url.scheme(), "http" | "https")
+                && url.host_str().is_some()
+                && url.username().is_empty()
+                && url.password().is_none()
+                && url.query().is_none()
+                && url.fragment().is_none()
+                && url.path().ends_with("/v1/traces"),
+            "OTLP trace endpoint requires HTTP(S) /v1/traces without credentials, query or fragment"
+        );
+        anyhow::ensure!(
+            !self.service_name.is_empty()
+                && self.service_name.len() <= 128
+                && self
+                    .service_name
+                    .bytes()
+                    .all(|c| c.is_ascii_alphanumeric() || matches!(c, b'.' | b'_' | b'-')),
+            "trace service_name must contain 1..128 ASCII letters, digits, dots, hyphens or underscores"
+        );
+        anyhow::ensure!(
+            self.sample_ratio.is_finite() && (0.0..=1.0).contains(&self.sample_ratio),
+            "trace sample_ratio must be between 0 and 1"
+        );
+        anyhow::ensure!(
+            (1..=8192).contains(&self.max_queue_size),
+            "trace max_queue_size must be between 1 and 8192"
+        );
+        anyhow::ensure!(
+            (1..=5).contains(&self.export_timeout_secs),
+            "trace export_timeout_secs must be between 1 and 5"
+        );
+        Ok(())
+    }
 }
 impl Default for ObservabilityConfig {
     fn default() -> Self {
@@ -273,6 +333,7 @@ impl Default for ObservabilityConfig {
             log_format: "json".into(),
             metrics_enabled: true,
             log_file: None,
+            traces: TraceConfig::default(),
         }
     }
 }
@@ -314,6 +375,7 @@ impl Config {
     pub fn validate(&self) -> anyhow::Result<()> {
         self.baseline.prepare()?;
         self.hub.validate()?;
+        self.observability.traces.validate()?;
         anyhow::ensure!(
             self.mode != Mode::Hub || !self.hub.agents.is_empty(),
             "hub mode requires at least one configured agent"
@@ -369,6 +431,26 @@ mod tests {
         assert!(config.validate().is_err());
         config.collector.interval_secs = 1;
         config.observability.log_level = "[".into();
+        assert!(config.validate().is_err());
+    }
+
+    #[test]
+    fn trace_configuration_rejects_unsafe_endpoints_and_unbounded_settings() {
+        let mut config = TraceConfig {
+            enabled: true,
+            ..TraceConfig::default()
+        };
+        config.validate().unwrap();
+        config.endpoint = "https://user:token@example.com/v1/traces".into();
+        assert!(config.validate().is_err());
+        config.endpoint = "http://127.0.0.1:4318/v1/traces".into();
+        config.sample_ratio = f64::NAN;
+        assert!(config.validate().is_err());
+        config.sample_ratio = 1.0;
+        config.max_queue_size = 0;
+        assert!(config.validate().is_err());
+        config.max_queue_size = 64;
+        config.export_timeout_secs = 6;
         assert!(config.validate().is_err());
     }
 }

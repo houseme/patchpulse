@@ -117,7 +117,11 @@
     "checked_on": "2026-10-02",
     "csv": {"version": "1.4.0", "source": "https://docs.rs/csv/latest/csv/"},
     "reqwest": {"version": "0.13.5", "source": "https://docs.rs/reqwest/latest/reqwest/"},
-    "rustls": {"version": "0.23.45", "source": "https://docs.rs/rustls/latest/rustls/", "note": "Latest compatible line required by reqwest; ring provider avoids an additional crypto implementation."}
+    "rustls": {"version": "0.23.45", "source": "https://docs.rs/rustls/latest/rustls/", "note": "Latest compatible line required by reqwest; ring provider avoids an additional crypto implementation."},
+    "opentelemetry": {"version": "0.33.0", "source": "https://docs.rs/opentelemetry/latest/opentelemetry/"},
+    "opentelemetry_sdk": {"version": "0.33.0", "source": "https://docs.rs/opentelemetry_sdk/latest/opentelemetry_sdk/"},
+    "opentelemetry-otlp": {"version": "0.33.0", "source": "https://docs.rs/opentelemetry-otlp/latest/opentelemetry_otlp/"},
+    "tracing-opentelemetry": {"version": "0.34.0", "source": "https://docs.rs/tracing-opentelemetry/latest/tracing_opentelemetry/"}
   },
   "review_changes": {
     "bytes": "Promoted the existing bytes 1.12.1 package to a direct dependency for prepared JSON buffers; version verified in official docs.rs latest documentation.",

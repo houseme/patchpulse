@@ -26,6 +26,7 @@ and [the complete API contract](docs/api.md).
 - [Architecture](docs/architecture.md) and [API contract](docs/api.md)
 - [Windows service and Docker deployment](docs/deployment.md)
 - [Agent and hub operation](docs/fleet.md)
+- [OpenTelemetry trace export](docs/telemetry.md)
 - [Review findings and performance refactor](docs/review-refactor.md)
 - [Validation evidence and remaining release gates](docs/validation.md)
 - [Rust development tools](docs/rust-tooling.md)

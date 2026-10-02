@@ -7,12 +7,19 @@ use crate::{
     observability::Metrics,
 };
 
+#[tracing::instrument(
+    name = "patchpulse.collection_cycle",
+    skip(store, orchestrator, metrics),fields(otel.status_code)
+)]
 pub async fn tick_once(
     store: &SnapshotStore,
     orchestrator: &Orchestrator,
     metrics: &Metrics,
 ) -> Result<(), PublishError> {
     let outcomes = orchestrator.run(metrics).await;
+    if outcomes.iter().any(|outcome| outcome.result.is_err()) {
+        tracing::Span::current().record("otel.status_code", "ERROR");
+    }
     store.publish(outcomes, jiff::Timestamp::now()).await?;
     let snapshot = store.read().await;
     tracing::info!(

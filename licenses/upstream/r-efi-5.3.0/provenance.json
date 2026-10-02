@@ -1,0 +1,32 @@
+{
+  "crate": "r-efi",
+  "version": "5.3.0",
+  "commit": "97b55bed1c2c91dcbf787674849f05337ff80b33",
+  "checked_on": "2026-10-02",
+  "note": "The crate archive and its recorded source commit declare three SPDX alternatives but provide no license text. These are official SPDX texts at a pinned commit; NOTICE-AUTHORS preserves the byte-identical upstream AUTHORS file.",
+  "sources": [
+    {
+      "file": "LICENSE-MIT",
+      "url": "https://github.com/spdx/license-list-data/blob/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt",
+      "retrieved_via": "https://api.github.com/repos/spdx/license-list-data/contents/text/MIT.txt?ref=31ba1a50e5397e00a304dbadc76531740e89ee48",
+      "git_blob": "d817195dad53ec992418c28ffca5fbd1cd86502a"
+    },
+    {
+      "file": "LICENSE-Apache-2.0",
+      "url": "https://github.com/spdx/license-list-data/blob/31ba1a50e5397e00a304dbadc76531740e89ee48/text/Apache-2.0.txt",
+      "retrieved_via": "https://api.github.com/repos/spdx/license-list-data/contents/text/Apache-2.0.txt?ref=31ba1a50e5397e00a304dbadc76531740e89ee48",
+      "git_blob": "137069b823873b8bcf42979bcf8e9371052d26a2"
+    },
+    {
+      "file": "LICENSE-LGPL-2.1-or-later",
+      "url": "https://github.com/spdx/license-list-data/blob/31ba1a50e5397e00a304dbadc76531740e89ee48/text/LGPL-2.1-or-later.txt",
+      "retrieved_via": "https://api.github.com/repos/spdx/license-list-data/contents/text/LGPL-2.1-or-later.txt?ref=31ba1a50e5397e00a304dbadc76531740e89ee48",
+      "git_blob": "c6487f4fdf701640ac0f559eb0130cdf76c5d3f4"
+    },
+    {
+      "file": "NOTICE-AUTHORS",
+      "url": "https://github.com/r-efi/r-efi/blob/97b55bed1c2c91dcbf787674849f05337ff80b33/AUTHORS",
+      "git_blob": "7397b2bd6a8580d51fe7b23783f8f1a05fa70291"
+    }
+  ]
+}

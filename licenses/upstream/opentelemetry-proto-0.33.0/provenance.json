@@ -1,0 +1,14 @@
+{
+  "crate": "opentelemetry-proto",
+  "version": "0.33.0",
+  "commit": "19833847cab86c8464c1dfb6d28b1de9c0b50038",
+  "checked_on": "2026-10-02",
+  "sources": [
+    {
+      "file": "LICENSE",
+      "url": "https://github.com/open-telemetry/opentelemetry-rust/blob/19833847cab86c8464c1dfb6d28b1de9c0b50038/LICENSE",
+      "retrieved_via": "https://api.github.com/repos/open-telemetry/opentelemetry-rust/contents/LICENSE?ref=19833847cab86c8464c1dfb6d28b1de9c0b50038",
+      "git_blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64"
+    }
+  ]
+}

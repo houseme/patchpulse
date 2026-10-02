@@ -21,3 +21,12 @@ Requirements: approved v0.4 roadmap; depends on Tasks 03, 05, 06, 10.
 Trace export works through the configured protocol, not solely an in-memory
 exporter. Existing logging/metrics contracts and unsupported-platform behavior
 remain intact. Production collector deployment remains an external acceptance gate.
+
+## Implementation record
+
+src/observability/telemetry.rs and the optional trace layer use official
+OpenTelemetry crates. config/patchpulse.toml documents the disabled default.
+tests/otel_contract.rs receives real OTLP/HTTP JSON, verifies parent/injected
+trace context and excludes sensitive inventory/query text. The failure and
+privacy contracts cover unavailable collectors, bounded flush and sanitized
+structured errors even with debug logging. See [telemetry.md](../telemetry.md).

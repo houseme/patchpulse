@@ -29,6 +29,6 @@ fn main() -> anyhow::Result<()> {
             .build()?
             .block_on(app::healthcheck(&config));
     }
-    observability::init_logging(&config.observability)?;
+    let _traces = observability::init_logging(&config.observability)?;
     app::block_on(app::foreground(config))
 }
