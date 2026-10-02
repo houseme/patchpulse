@@ -29,6 +29,10 @@ Unreleased entries do not announce a published release.
 - Expose fleet and per-machine snapshot/baseline queries and aggregate metric counts; keep token values and target URLs out of responses/logs.
 - Include native CA data/notices in Linux packaging and exact-commit fallback licenses for upstream archives that omit them.
 
+### Fleet baseline correctness
+
+- Preserve a conclusive non-compliant fleet result when another agent is unreachable or stale; keep that agent's own result unknown.
+
 ### Foundation, configuration, and patch model
 
 - Add the edition-2024 Rust library, pinned toolchain and dependency lockfile; license PatchPulse under Apache-2.0 and retain upstream notices.

@@ -53,6 +53,9 @@ Baseline routes are disabled unless a baseline is configured. A failed agent
 cannot establish compliance from its retained data. Hub mode does not recursively
 expose /snapshot as though it were a single host. Existing agent JSON fields are
 preserved. Collector execution, credentials and targets remain outside HTTP input.
+Fleet compliance is non_compliant when any fresh agent has a known missing KB;
+otherwise it is unknown if any agent is unknown, and compliant only when all
+agents satisfy the baseline with fresh input.
 
 ## Verification
 
