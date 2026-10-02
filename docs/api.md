@@ -9,6 +9,7 @@ Default address: `127.0.0.1:9100`. All endpoints accept GET and HEAD. Request ha
 | /version | 200 | name, version, target OS, architecture, Apache-2.0 license |
 | /patches | 200 | Installed list: count and items |
 | /patches/pending | 200 | Pending list: count and items |
+| /patches/export | 200 | UTF-8 CSV attachment of installed or pending inventory |
 | /patches/summary | 200 | Counts, installation dates, freshness, failures, coverage, backend statuses, reboot state |
 | /metrics | 200 or 404 when disabled | Prometheus 0.0.4 text |
 
@@ -19,6 +20,8 @@ Both list endpoints accept optional `status` (`installed`, `pending`, `failed`, 
 A record contains `kb_id`, nullable `title`, `description`, `category`, `severity`, `installed_on`, `installed_date`, and `installed_on_raw`, plus `status`, `reboot_required`, `source`, `sources`, and nullable `update_id`. `source` is the deterministic primary source and `sources` retains all contributing sources. Lists are sorted by KB/identity and have no duplicate keys.
 
 ## Summary fields
+
+CSV export uses `/patches/export?format=csv`; see the export contract below.
 
 - `total_installed`, `total_pending`: aggregate counts after deduplication and reconciliation.
 - `latest_installed_kb`, `latest_installed_at`, `latest_installed_date`: newest known date, with nullable values when no reliable date is known.
@@ -31,3 +34,23 @@ A record contains `kb_id`, nullable `title`, `description`, `category`, `severit
 - `coverage_note`: limitations of CBS QuickFix and the cached WUA catalog.
 
 Readiness remains 200 after the first successful batch even during later degradation; consumers must inspect freshness separately. Snapshots are in memory and restart in the initializing state. The service provides no authentication or TLS; keep it on loopback or behind the deployment's authenticated proxy and firewall.
+
+## CSV export
+
+`GET /patches/export?format=csv` exports installed records by default. Optional
+status and since have the same validation and date semantics as list queries;
+status=pending selects pending rows, while failed/unknown produce a header-only
+file. Omitted format defaults to csv; any other format returns JSON 400.
+
+The response has `text/csv; charset=utf-8` and an attachment filename. Columns are
+kb_id, title, description, category, severity, installed_on, installed_date,
+installed_on_raw, status, reboot_required, source, sources and update_id.
+Null strings/dates become empty cells; sources use semicolons. Use RFC 4180
+quoting, Unicode text and CRLF row endings. Potential spreadsheet formulas
+(leading =, +, -, @ after whitespace, or leading tab/CR/LF) receive an apostrophe
+prefix. This protects spreadsheet consumers and deliberately differs from the
+unmodified JSON text. No export request starts collection.
+
+CSV buffers and complete row spans are prepared alongside JSON during publication.
+Failure-only cycles share previous buffers. Full exports share bytes; since
+filters copy selected complete rows from the same immutable view.

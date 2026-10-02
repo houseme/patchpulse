@@ -53,17 +53,19 @@ pub enum HttpRoute {
     Installed,
     Pending,
     Summary,
+    Export,
     Metrics,
     Other,
 }
 impl HttpRoute {
-    const ALL: [Self; 8] = [
+    const ALL: [Self; 9] = [
         Self::Health,
         Self::Ready,
         Self::Version,
         Self::Installed,
         Self::Pending,
         Self::Summary,
+        Self::Export,
         Self::Metrics,
         Self::Other,
     ];
@@ -75,6 +77,7 @@ impl HttpRoute {
             "/patches" => Self::Installed,
             "/patches/pending" => Self::Pending,
             "/patches/summary" => Self::Summary,
+            "/patches/export" => Self::Export,
             "/metrics" => Self::Metrics,
             _ => Self::Other,
         }
@@ -87,6 +90,7 @@ impl HttpRoute {
             Self::Installed => "/patches",
             Self::Pending => "/patches/pending",
             Self::Summary => "/patches/summary",
+            Self::Export => "/patches/export",
             Self::Metrics => "/metrics",
             Self::Other => "unmatched",
         }

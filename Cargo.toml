@@ -12,6 +12,7 @@ anyhow = "1.0.104"
 axum = { version = "0.8.9", default-features = false, features = ["http1", "http2", "json", "query", "tokio"] }
 bytes = "1.12.1"
 clap = { version = "4.6.7", features = ["derive"] }
+csv = "1.4.0"
 jiff = { version = "0.2.37", default-features = false, features = ["std", "serde"] }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
 serde_json = { version = "1.0.151", features = ["raw_value"] }

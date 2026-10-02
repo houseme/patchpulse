@@ -10,6 +10,12 @@ Unreleased entries do not announce a published release.
 - Add read-only startup token elevation and enabled-administrator diagnostics without disabling HTTP for restricted accounts.
 - Return structured JSON 408 errors, cancel timed-out handlers and count timeout responses; exercise all-route HEAD and duplicate-query contracts.
 
+### CSV inventory export
+
+- Add read-only GET/HEAD CSV exports with installed/pending selection and inclusive since filtering, strict queries and attachment headers.
+- Prepare RFC 4180 UTF-8 CSV and row spans during publication; share full bodies, copy filtered rows and retain buffers after collection failures.
+- Escape spreadsheet formula cells and preserve commas, quotes, Unicode and multiline text; verify export contracts without external programs.
+
 ### Foundation, configuration, and patch model
 
 - Add the edition-2024 Rust library, pinned toolchain and dependency lockfile; license PatchPulse under Apache-2.0 and retain upstream notices.

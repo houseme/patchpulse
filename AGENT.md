@@ -41,6 +41,7 @@ platform APIs or HTTP/runtime dependencies.
 | src/collector/powershell.rs | Trusted command construction and typed JSON parsing |
 | src/collector/process.rs | Output limits, execution/drain deadline and process jobs |
 | src/cache/mod.rs | Transactional assembly and immutable prepared publication |
+| src/export.rs | Prepared spreadsheet-safe CSV bodies and complete row spans |
 | src/scheduler/mod.rs | Immediate/periodic ticks; sole snapshot publisher |
 | src/api/mod.rs | Read-only handlers, cached JSON, filters and contracts |
 | src/observability/mod.rs | Tracing, bounded HTTP counters and Prometheus formatting |

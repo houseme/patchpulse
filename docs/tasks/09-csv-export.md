@@ -18,3 +18,10 @@ Requirements: approved v0.2 roadmap; depends on Tasks 02, 04, 05.
 
 CSV round-trips through an independent reader. HTTP handlers never collect or
 mutate inventory. CSV export is enabled in agent mode without external programs.
+
+## Implementation record
+
+src/export.rs prepares CSV rows during snapshot publication; the actual router
+serves shared/filtered cached bodies. tests/export_contract.rs covers Unicode,
+quoting, formula escaping, filtering, retained buffers, empty exports, HEAD,
+duplicate/invalid queries and write rejection. Local contracts pass.

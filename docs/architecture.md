@@ -68,6 +68,12 @@ The resource goals from the proposal (under 30 MiB RSS and low collection CPU) r
 
 ## Prepared query representation
 
+Publication also prepares spreadsheet-safe RFC 4180 CSV bodies and complete row
+spans on its blocking worker. Full CSV exports share Bytes; filtered exports
+copy the selected row spans. Failed cycles retain both JSON and CSV buffers.
+This increases publication work and retained bytes; export handlers avoid
+encoding inventory on request threads.
+
 Full lists share pre-encoded Bytes buffers. Publication records each encoded object boundary; `since` filters copy selected encoded rows without metadata cloning or repeated serialization. Latest-installation indexing and coverage are prepared once. Summary serializes borrowed typed fields while freshness remains evaluated at request time. HTTP counters use bounded route/status atomics; collector histogram formatting occurs outside the registry lock.
 
 See [review-refactor.md](review-refactor.md) for findings, measured gains, publication costs, and Windows validation limits.
