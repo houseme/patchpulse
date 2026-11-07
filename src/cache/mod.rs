@@ -25,6 +25,8 @@ pub const EMPTY_LIST_JSON: &[u8] = b"{\"count\":0,\"items\":[]}";
 #[derive(Clone)]
 pub struct PublishedSnapshot {
     pub snapshot: Arc<PatchSnapshot>,
+    /// Prepared after publication; the initial empty view uses ordinary serialization.
+    pub snapshot_json: Option<Arc<serde_json::value::RawValue>>,
     pub installed_json: Bytes,
     pub pending_json: Bytes,
     installed_csv: Bytes,
@@ -163,6 +165,7 @@ impl SnapshotStore {
             .collect();
         let (published, _) = watch::channel(Arc::new(PublishedSnapshot {
             snapshot: Arc::new(snapshot),
+            snapshot_json: None,
             installed_json: Bytes::from_static(EMPTY_LIST_JSON),
             pending_json: Bytes::from_static(EMPTY_LIST_JSON),
             installed_csv: Bytes::from_static(crate::export::HEADER),
@@ -277,12 +280,13 @@ fn assemble(
         (next.pending_csv, next.pending_csv_spans) = crate::export::encode(&snapshot.pending)?;
         next.latest_index = snapshot.latest_installed_index();
     }
-    // Failure-only cycles keep every prepared buffer while updating diagnostics.
+    // Failure-only cycles retain prepared list buffers while updating snapshot diagnostics.
     next.coverage = snapshot
         .backends
         .iter()
         .map(|(name, status)| (name.clone(), status.enabled))
         .collect();
+    next.snapshot_json = Some(Arc::from(serde_json::value::to_raw_value(&snapshot)?));
     next.snapshot = Arc::new(snapshot);
     Ok((data, next))
 }

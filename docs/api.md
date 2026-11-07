@@ -72,6 +72,11 @@ data previously satisfied the baseline. Counts/lists remain observations from
 that same snapshot. Comparison uses exact KB membership; it does not infer
 supersedence, security/vulnerability coverage or patch installation.
 
+A definite conclusion also requires a successful enabled installed-inventory
+backend (`wmi_installed`, `wua_installed`, or `powershell_installed`). Pending-only
+configuration yields unknown compliance even when its observations are fresh.
+Its pending/missing lists remain available and `is_stale` reflects freshness.
+
 ## Agent and hub protocol
 
 Agent `/snapshot` and the mode-specific fleet routes, schemas, budgets, retained

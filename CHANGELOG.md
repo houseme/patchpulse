@@ -5,6 +5,15 @@ Unreleased entries do not announce a published release.
 
 ## [Unreleased]
 
+### Roadmap review and snapshot queries
+
+- Require enabled backend evidence, a current publication timestamp and clear publication diagnostics before reporting a fresh snapshot.
+- Reject ready remote snapshots without a successful enabled backend and preserve the previous observation as stale.
+- Return unknown baseline compliance for pending-only collection while retaining its observed pending and missing KBs.
+- Prepare agent snapshot JSON on the publication worker and reuse it for HTTP queries with request-time freshness and observation timestamps.
+- Extend domain and actual-router regressions for incomplete remote diagnostics, pending-only baselines and coherent cached failure reports.
+- Restore exact-source OpenTelemetry 0.33.1 licenses and r-efi 6.0.0 attribution, then regenerate the resolved dependency notices.
+
 ### Completion review: runtime and HTTP contracts
 
 - Add read-only startup token elevation and enabled-administrator diagnostics without disabling HTTP for restricted accounts.

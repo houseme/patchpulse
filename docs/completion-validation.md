@@ -1,5 +1,79 @@
 # Completion Review and Validation
 
+## 2026-11-07 working-tree review
+
+Reviewed F1-F9, Tasks 01-12 and roadmap v0.2-v0.5. The current source implements
+every listed feature. Remaining acceptance covers Windows Server 2016/2019/2022
+collection, SCM operations, Windows containers, deployed Agent/Hub and OTLP
+integration, and Windows resource/performance measurements.
+
+This review fixes pending-only baseline conclusions and remote freshness/readiness
+without successful enabled backend evidence. The two regressions reproduce on
+the `fb7cb06` source with the same current Cargo.lock, in a separate target
+directory, and pass after the fixes. Agent snapshot JSON is prepared during
+transactional publication and served with request-time freshness.
+
+The workspace received concurrent Cargo.toml/Cargo.lock and stable-toolchain
+updates during this review. Host checks use installed Rust 1.99.1 stable. The
+Dockerfile builds with Rust 1.98.1. Dependency declarations and toolchain edits
+belong to that concurrent work. This review restores the missing upstream license
+materials and regenerates the dependency inventory against the resulting graph.
+
+| Executed gate | Result |
+| --- | --- |
+| `cargo fmt --all --check` and `git diff --check` | Passed. |
+| `cargo test --all-targets --all-features --locked` | 73 tests passed in an isolated current-source target directory with loopback access. Windows-only test binaries contain zero host tests. |
+| `cargo clippy --all-targets --all-features --locked -- -D warnings` | Passed on macOS ARM64. |
+| `sh scripts/check-windows-gnu.sh` | Passed with installed Zig and x86_64-pc-windows-gnu. |
+| `cargo doc --no-deps --locked` | Passed. |
+| `--check-config` for both shipped configurations | Passed. |
+| `cargo xtask dependency-policy --write` followed by `cargo xtask dependency-policy` | Passed, including all resolved targets and upstream notices. |
+| `cargo deny --offline --locked check --hide-inclusion-graph` | Advisories, bans, licenses and sources passed using cached database commit `26fd2d43f7280a1fb925a3743ec463017afe7119`, dated 2026-11-05. Upstream duplicate-version warnings remain. |
+| `cargo audit --db target/roadmap-review/advisory-db --no-fetch` | Passed against verified official RustSec snapshot `309392b18f6b17022f82c701f300433126901068`, dated 2026-11-06T15:34:32Z, covering 1,422 advisories and 252 locked dependencies. |
+| Docker build using the current Dockerfile and locked public crate cache | Passed on Linux ARM64. |
+| `cargo xtask smoke-docker --image patchpulse:roadmap-review` | Passed health/readiness, CSV, snapshot, read-only methods, JSON logs, CA/notices, non-root/read-only runtime and SIGTERM exit zero. |
+| `cargo xtask smoke-hub-docker --image patchpulse:roadmap-review` | Passed actual Agent/Hub polling, unknown baseline on unsupported Linux collectors and both SIGTERM exits at zero. |
+
+Direct Git fetches of RustSec failed. Recovery used GitHub's official comparison
+API from the clean cached commit to the current commit and fetched all 14 changed
+files. Every file's computed Git blob ID matched both the comparison and contents
+API. The verified snapshot resides in ignored target data. OpenTelemetry 0.33.1
+licenses come from their recorded source commit and verified blob, while r-efi
+6.0.0 uses the existing verified SPDX texts plus its current upstream AUTHORS.
+Per-crate provenance is recorded under licenses/upstream.
+
+Reproducible test logs, the isolated baseline source, benchmark executables and
+Docker smoke reports reside in `target/roadmap-review`. The final Linux image
+is `patchpulse:roadmap-review`, ID
+`sha256:58e24b234e86a734e2a756c7dd61d538c31b01a25f3f4baacf95b6c383860143`.
+The smoke commands clean up their temporary containers and network.
+
+### Snapshot query measurement
+
+The release-mode real-router benchmark uses 800 deterministic installed records,
+10,000 requests per route and 50 publication samples. Baseline and candidate use
+the same Cargo.lock and Rust 1.99.1, separate build directories, warm-up runs and
+sequential A1/B1/B2/A2 execution after builds and container tests completed.
+
+| Run | `/snapshot` p50 | `/snapshot` p95 | Successful publication p50 | Failure-only publication p50 |
+| --- | --- | --- | --- | --- |
+| A1, original | 294.042 us | 339.042 us | 690.583 us | 20.375 us |
+| B1, updated | 7.625 us | 8.542 us | 962.166 us | 288.417 us |
+| B2, updated | 7.417 us | 8.834 us | 942.125 us | 278.750 us |
+| A2, original | 293.125 us | 342.375 us | 709.000 us | 19.125 us |
+
+Baseline query p50 drift was 0.31%. Prepared JSON reduces the measured query
+p50 by approximately 97.4%. The tradeoff is an additional encoded snapshot
+(approximately 504 KB in this fixture) and approximately 0.25-0.27 ms extra
+background publication work, including failure-only cycles that refresh error
+diagnostics. This measures in-process handler execution on macOS. Network
+throughput and Windows collector latency remain separate acceptance targets.
+Run `cargo run --release --locked --example hotpath -- 800 10000` to measure the
+current implementation. The archived source and A1/B1/B2/A2 JSON measurements
+are in `target/roadmap-review`.
+
+### Historical checkpoint
+
 Checked on 2026-10-02 (Asia/Shanghai) against all eight original English tasks,
 the F1-F9 requirements in the historical combat-solutions proposal, and the
 user-approved Tasks 09-12. Code paths for CSV export, agent/hub aggregation,

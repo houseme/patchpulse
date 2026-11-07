@@ -13,17 +13,17 @@ axum = { version = "0.8.9", default-features = false, features = ["http1", "http
 bytes = "1.12.1"
 clap = { version = "4.6.7", features = ["derive"] }
 csv = "1.4.0"
-jiff = { version = "0.2.37", default-features = false, features = ["std", "serde"] }
-opentelemetry = { version = "0.33.0", default-features = false, features = ["trace"] }
-opentelemetry_sdk = { version = "0.33.0", default-features = false, features = ["trace"] }
-opentelemetry-otlp = { version = "0.33.0", default-features = false, features = ["trace", "http-json", "reqwest-blocking-client", "internal-logs"] }
+jiff = { version = "0.2.39", default-features = false, features = ["std", "serde"] }
+opentelemetry = { version = "0.33.1", default-features = false, features = ["trace"] }
+opentelemetry_sdk = { version = "0.33.1", default-features = false, features = ["trace"] }
+opentelemetry-otlp = { version = "0.33.1", default-features = false, features = ["trace", "http-json", "reqwest-blocking-client", "internal-logs"] }
 reqwest = { version = "0.13.5", default-features = false, features = ["rustls-no-provider"] }
-rustls = { version = "0.23.45", default-features = false, features = ["std", "ring", "tls12"] }
+rustls = { version = "0.23.46", default-features = false, features = ["std", "ring", "tls12"] }
 serde = { version = "1.0.229", features = ["derive", "rc"] }
-serde_json = { version = "1.0.151", features = ["raw_value"] }
+serde_json = { version = "1.0.154", features = ["raw_value"] }
 thiserror = "2.0.21"
-tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "net", "signal", "sync", "time", "io-util"] }
-toml = "1.1.6"
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal", "sync", "time", "io-util"] }
+toml = "1.2.1"
 tower-http = { version = "0.7.1", features = ["timeout", "trace"] }
 tracing = "0.1.44"
 tracing-opentelemetry = { version = "0.34.0", default-features = false }
@@ -35,7 +35,7 @@ windows-service = "0.8.1"
 
 [dev-dependencies]
 http-body-util = "0.1.5"
-hyper = { version = "1.11.1", features = ["client", "http1"] }
+hyper = { version = "1.12.0", features = ["client", "http1"] }
 hyper-util = { version = "0.1.21", features = ["tokio"] }
 tower = { version = "0.5.3", features = ["util"] }
 

@@ -5,6 +5,11 @@ observed_at, stale_after_secs, is_stale and one coherent PatchSnapshot. The
 snapshot contains installed/pending arrays, last_refreshed, last_error,
 consecutive_failures, backends and reboot_required.
 
+After publication, agents serve prepared snapshot JSON while calculating
+observed_at and is_stale for each request. Publication prepares this extra
+encoded copy on the blocking worker, including updated failure diagnostics.
+The cache adds approximately one encoded snapshot's size per retained view.
+
 Run a hub with `cargo run --locked -- --config config/hub.toml --foreground`.
 Hub mode skips local collectors and polls only static hub.agents targets. IDs
 are unique ASCII letters/digits/hyphens/underscores. URLs support HTTP(S) without
@@ -32,6 +37,12 @@ targets or trigger polling. The same KB on two machines remains two observations
 
 Source or transport failure/expiry makes a node stale. Readiness is historical
 first source-ready remote collection; it does not imply universal freshness.
+Freshness also requires a current publication timestamp, no publication error,
+and enabled backend evidence. Empty or all-disabled remote backend diagnostics
+cannot establish freshness. A ready remote snapshot requires a successful
+enabled backend, otherwise polling fails and retains the previous observation
+with stale/unknown status. A definite baseline conclusion
+requires an enabled installed-inventory collector with a successful observation.
 Metrics inventory counts sum per-host observations and use bounded path templates.
 The Linux image includes native CA certificates and their upstream notice.
 

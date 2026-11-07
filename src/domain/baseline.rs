@@ -60,7 +60,16 @@ impl Baseline {
             }
         }
         let is_stale = input_stale || !snapshot.is_ready();
-        let compliance = if is_stale {
+        let has_installed_inventory = ["wmi_installed", "wua_installed", "powershell_installed"]
+            .iter()
+            .any(|name| {
+                snapshot.backends.get(*name).is_some_and(|backend| {
+                    backend.enabled
+                        && backend.last_success.is_some()
+                        && backend.last_error.is_none()
+                })
+            });
+        let compliance = if is_stale || !has_installed_inventory {
             Compliance::Unknown
         } else if missing.is_empty() {
             Compliance::Compliant

@@ -31,14 +31,21 @@ impl PatchSnapshot {
     }
 
     pub fn is_stale(&self, now: Timestamp, stale_after_secs: u64) -> bool {
-        !self.is_ready()
-            || self.backends.values().filter(|b| b.enabled).any(|b| {
-                b.last_success.is_none_or(|t| {
-                    now < t
-                        || now.as_second().saturating_sub(t.as_second())
-                            > i64::try_from(stale_after_secs).unwrap_or(i64::MAX)
-                }) || b.last_error.is_some()
+        let expired = |time: Option<Timestamp>| {
+            time.is_none_or(|time| {
+                now < time
+                    || now.as_second().saturating_sub(time.as_second())
+                        > i64::try_from(stale_after_secs).unwrap_or(i64::MAX)
             })
+        };
+        expired(self.last_refreshed)
+            || self.last_error.is_some()
+            || !self.backends.values().any(|backend| backend.enabled)
+            || self
+                .backends
+                .values()
+                .filter(|b| b.enabled)
+                .any(|b| expired(b.last_success) || b.last_error.is_some())
     }
 
     pub fn age_seconds(&self, now: Timestamp) -> Option<i64> {
@@ -69,6 +76,41 @@ impl PatchSnapshot {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn freshness_requires_current_publication_and_enabled_backend_evidence() {
+        let now: Timestamp = "2026-11-07T00:00:00Z".parse().unwrap();
+        let mut snapshot = PatchSnapshot {
+            last_refreshed: Some(now),
+            ..Default::default()
+        };
+        assert!(snapshot.is_stale(now, 60));
+        snapshot.backends.insert(
+            "wua_installed".into(),
+            BackendStatus {
+                last_success: Some(now),
+                ..Default::default()
+            },
+        );
+        assert!(snapshot.is_stale(now, 60));
+        snapshot.backends.get_mut("wua_installed").unwrap().enabled = true;
+        assert!(!snapshot.is_stale(now, 60));
+        snapshot.last_error = Some("incomplete cycle".into());
+        assert!(snapshot.is_stale(now, 60));
+        snapshot.last_error = None;
+        snapshot.last_refreshed = Some(
+            now.checked_sub(jiff::SignedDuration::from_secs(61))
+                .unwrap(),
+        );
+        assert!(snapshot.is_stale(now, 60));
+        snapshot.last_refreshed = Some(
+            now.checked_sub(jiff::SignedDuration::from_secs(60))
+                .unwrap(),
+        );
+        assert!(!snapshot.is_stale(now, 60));
+        snapshot.last_refreshed =
+            Some(now.checked_add(jiff::SignedDuration::from_secs(1)).unwrap());
+        assert!(snapshot.is_stale(now, 60));
+    }
     #[test]
     fn clock_rollback_cannot_report_a_future_observation_as_fresh() {
         let future: Timestamp = "2026-09-02T00:00:00Z".parse().unwrap();

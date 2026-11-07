@@ -87,7 +87,7 @@ fn main() {
         let _ = scheduler::tick_once(&store, &orchestrator, &metrics).await;
         let router = api::build(ApiState { store: store.clone(), metrics: metrics.clone() }, true, 15);
         let mut results = Vec::new();
-        for path in ["/patches", "/patches?status=installed", "/patches?since=2026-09-02T00:00:00Z", "/patches/summary", "/ready", "/metrics"] {
+        for path in ["/patches", "/patches?status=installed", "/patches?since=2026-09-02T00:00:00Z", "/patches/summary", "/snapshot", "/ready", "/metrics"] {
             for _ in 0..25 { request(&router, path).await; }
             let mut samples = Vec::with_capacity(repetitions);
             let mut bytes = 0;

@@ -28,3 +28,7 @@ Agent configuration/domain/router comparison is implemented and real-router
 contracts cover unknown, pending/non-compliant, fresh compliant and retained
 stale states plus disabled/write rejection. Task 10 adds per-agent/fleet reports,
 including transport-failure and missing-agent unknown states.
+
+The 2026-11-07 review covers pending-only configurations. A successful enabled
+installed-inventory backend is required for a definite conclusion, while fresh
+pending observations remain visible with unknown compliance.

@@ -1,5 +1,33 @@
 # Requirements and Task Completion Audit
 
+## Source recheck on 2026-11-07
+
+The recheck covers F1-F9, all twelve task specifications and the four roadmap
+extensions against the production source and actual-router tests. All listed
+features have implementation paths. Production acceptance remains open for
+Windows Server collectors, SCM lifecycle, Windows containers, deployed remote
+agents/OTLP collectors and Windows resource/performance targets.
+
+| Scope | Implementation and current evidence | Remaining acceptance |
+| --- | --- | --- |
+| Tasks 01-02, configuration and domain | Strict configuration, KB/date reconciliation and license policy have host tests. New-version upstream license fallbacks are verified and the inventory is regenerated. | Dependency freshness requires a new check after future upgrades. |
+| Tasks 03-04, collection and snapshots | All five backends exist. Host fixtures cover retention, concurrency, single-flight, cancellation and empty success. Publication freshness now checks timestamps, errors and enabled backend evidence. | Native Windows collection and private-job cleanup. |
+| Tasks 05-06, HTTP and observability | Read-only routes, filtering, timeouts, metrics, JSON/pretty logs and shutdown contracts pass. | Production permissions and Windows resource measurements. |
+| Tasks 07-08, service and delivery | SCM and packaging paths exist. Host and Windows GNU Clippy pass. Current validation outcomes are recorded in completion-validation.md. | Windows SCM/container execution and current remote CI. |
+| v0.2 / Task 09, CSV | Prepared UTF-8 CSV, safe text escaping, complete-row filters and real-router contracts. | Host contract checks complete. |
+| v0.3 / Task 10, Agent/Hub | Configured bounded polling, TLS rejection, retention, identity, fleet state and lifecycle contracts. Missing remote backend evidence produces stale/unknown results. Snapshot queries reuse prepared JSON. | Deployed multi-host TLS and credential policy. |
+| v0.4 / Task 11, OpenTelemetry | Actual loopback OTLP/HTTP JSON delivery, W3C context, bounded failure handling and privacy contracts. | Production OTLP collector integration. |
+| v0.5 / Task 12, baselines | Exact-KB agent/fleet reports, fresh compliant/non-compliant and stale/unknown cases. Pending-only collectors now yield unknown compliance. | Windows inventory coverage under the operator's baseline policy. |
+
+The two correctness regressions reproduce against `fb7cb06` with the current
+dependency graph in an isolated build directory and pass with the fixes.
+Current host validation has 73 passing tests. Detailed commands, benchmark
+tradeoffs and advisory provenance are recorded in completion-validation.md.
+
+The sections below preserve the 2026-10-02 checkpoint and its historical CI
+evidence. Release labels v0.2-v0.5 describe roadmap scopes. The package remains
+version 0.1.0 and this review creates working-tree changes.
+
 Audited against the complete historical `PatchPulse Combat Solutions.md`, the
 original eight specifications and the user-approved Tasks 09-12 extensions,
 implementation paths, tests, deployment recipes and evidence. Audit date:

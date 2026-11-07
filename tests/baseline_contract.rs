@@ -118,3 +118,35 @@ async fn disabled_baseline_is_not_exposed() {
         404
     );
 }
+
+#[tokio::test]
+async fn pending_only_collection_cannot_establish_baseline_compliance() {
+    for name in ["wua_pending", "powershell_pending"] {
+        let (store, orchestrator, metrics) = setup(vec![mock(
+            name,
+            vec![Some(vec![record("KB1", PatchStatus::Pending)])],
+        )]);
+        scheduler::tick_once(&store, &orchestrator, &metrics)
+            .await
+            .unwrap();
+        let router = api::build_with_features(
+            ApiState { store, metrics },
+            true,
+            15,
+            ApiFeatures {
+                baseline: BaselineConfig {
+                    enabled: true,
+                    required_kbs: vec!["KB1".into()],
+                    ..Default::default()
+                }
+                .prepare()
+                .unwrap(),
+                ..Default::default()
+            },
+        );
+        let report = response(&router, "GET").await.1;
+        assert_eq!(report["compliance"], "unknown", "{name}");
+        assert_eq!(report["is_stale"], false);
+        assert_eq!(report["pending"], serde_json::json!(["KB1"]));
+    }
+}

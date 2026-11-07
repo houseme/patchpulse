@@ -5,10 +5,10 @@ use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct AgentSnapshot {
+pub struct AgentSnapshot<T = Arc<PatchSnapshot>> {
     pub schema_version: u32,
     pub observed_at: jiff::Timestamp,
     pub stale_after_secs: u64,
     pub is_stale: bool,
-    pub snapshot: Arc<PatchSnapshot>,
+    pub snapshot: T,
 }

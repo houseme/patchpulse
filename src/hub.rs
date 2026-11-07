@@ -328,6 +328,15 @@ fn decode(body: Vec<u8>) -> anyhow::Result<Received> {
         wire.snapshot.backends.len() <= 64,
         "agent returned too many backends"
     );
+    ensure!(
+        !wire.snapshot.is_ready()
+            || wire
+                .snapshot
+                .backends
+                .values()
+                .any(|backend| backend.enabled && backend.last_success.is_some()),
+        "ready agent requires a successful enabled backend"
+    );
     for (records, status) in [
         (&wire.snapshot.installed, PatchStatus::Installed),
         (&wire.snapshot.pending, PatchStatus::Pending),

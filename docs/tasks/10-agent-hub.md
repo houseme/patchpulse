@@ -34,3 +34,8 @@ tests/hub_contract.rs for real HTTP, retained failures, budgets, bounded
 concurrency, shutdown and untrusted HTTPS certificate rejection. The Rust
 smoke-hub-docker command also verifies the actual two-role image and cleans its
 temporary Docker network and containers.
+
+The 2026-11-07 review adds conservative freshness for missing/disabled remote
+backend evidence and publication errors/expiry. Agent snapshot JSON is prepared
+on publication, with live observation time and freshness in each HTTP envelope.
+Router regressions verify coherent cached data and diagnostics after failure.

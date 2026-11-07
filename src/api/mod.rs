@@ -365,6 +365,16 @@ async fn metrics(
 async fn agent_snapshot(State(state): State<ApiState>) -> Response {
     let view = state.store.view();
     let now = jiff::Timestamp::now();
+    if let Some(snapshot) = &view.snapshot_json {
+        return Json(crate::domain::agent::AgentSnapshot {
+            schema_version: 1,
+            observed_at: now,
+            stale_after_secs: state.store.stale_after_secs,
+            is_stale: view.snapshot.is_stale(now, state.store.stale_after_secs),
+            snapshot,
+        })
+        .into_response();
+    }
     Json(crate::domain::agent::AgentSnapshot {
         schema_version: 1,
         observed_at: now,

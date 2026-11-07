@@ -489,12 +489,78 @@ async fn agent_snapshot_endpoint_exports_the_same_publication_and_live_freshness
         wire["snapshot"],
         serde_json::to_value(&store.view().snapshot).unwrap()
     );
+    let original = store.view();
+    let cached: serde_json::Value =
+        serde_json::from_str(original.snapshot_json.as_ref().unwrap().get()).unwrap();
+    assert_eq!(cached, wire["snapshot"]);
     scheduler::tick_once(&store, &orchestrator, &metrics)
         .await
         .unwrap();
     let failed = response(&router, "/snapshot", "GET").await.1;
     assert_eq!(failed["is_stale"], true);
     assert_eq!(failed["snapshot"]["installed"][0]["kb_id"], "KB1");
+    assert_eq!(
+        failed["snapshot"],
+        serde_json::to_value(&store.view().snapshot).unwrap()
+    );
+    assert!(cached["last_error"].is_null());
+    assert!(failed["snapshot"]["last_error"].is_string());
+}
+
+#[tokio::test]
+async fn incomplete_remote_diagnostics_cannot_establish_fresh_fleet_compliance() {
+    let mut payload = wire("KB1").await;
+    Arc::make_mut(&mut payload.snapshot).backends.clear();
+    let node = server(Router::new().route(
+        "/snapshot",
+        get(move || {
+            let payload = payload.clone();
+            async move { Json(payload) }
+        }),
+    ))
+    .await;
+    let hub = Hub::new(&HubConfig {
+        agents: vec![agent("a", &node.url)],
+        ..Default::default()
+    })
+    .unwrap();
+    let metrics = Metrics::default();
+    hub.poll_once(&metrics).await.unwrap();
+    let router = api::build_with_features(
+        ApiState {
+            store: patchpulse::cache::SnapshotStore::new(30, &[]),
+            metrics,
+        },
+        true,
+        15,
+        ApiFeatures {
+            baseline: BaselineConfig {
+                enabled: true,
+                required_kbs: vec!["KB1".into()],
+                ..Default::default()
+            }
+            .prepare()
+            .unwrap(),
+            hub: Some(hub.store.clone()),
+        },
+    );
+    assert_eq!(response(&router, "/ready", "GET").await.0, 503);
+    assert_eq!(
+        response(&router, "/fleet/summary", "GET").await.1["fresh_agents"],
+        0
+    );
+    assert_eq!(
+        response(&router, "/agents/a/snapshot", "GET").await.1["is_stale"],
+        true
+    );
+    assert_eq!(
+        response(&router, "/agents/a/baseline", "GET").await.1["report"]["compliance"],
+        "unknown"
+    );
+    assert_eq!(
+        response(&router, "/fleet/baseline", "GET").await.1["compliance"],
+        "unknown"
+    );
 }
 
 #[tokio::test]
